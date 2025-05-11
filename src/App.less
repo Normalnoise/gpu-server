@@ -59,6 +59,39 @@ body {
   .ant-table-tbody > tr:hover > td {
     background: #1f1f1f;
   }
+
+  // API Key 列样式优化
+  .ant-typography {
+    &.ant-typography-code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+      background-color: #1a1a1a;
+      border: 1px solid #303030;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  
+  // 表格按钮
+  .ant-btn-text {
+    padding: 4px 8px;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      
+      .anticon {
+        color: #1890ff !important;
+      }
+    }
+    
+    .anticon {
+      font-size: 16px;
+    }
+  }
 }
 
 // 标签页样式
@@ -113,26 +146,602 @@ body {
   }
 }
 
-// 模态框样式
+// 模态框样式增强
 .ant-modal {
   .ant-modal-content {
-    background-color: var(--component-background);
+    background-color: #1a1f28 !important; // 更深的蓝灰色背景
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid #283142 !important; // 蓝灰色边框
+    border-radius: 8px !important;
 
     .ant-modal-header {
-      background-color: var(--component-background);
-      border-color: var(--border-color);
+      background-color: #1a1f28 !important;
+      border-color: #283142 !important;
+      padding: 16px 24px !important;
+      border-radius: 8px 8px 0 0 !important;
 
       .ant-modal-title {
-        color: var(--text-color);
+        color: #ffffff !important;
+        font-weight: 600;
+        font-size: 16px;
       }
     }
 
     .ant-modal-body {
-      background-color: var(--component-background);
+      background-color: #1a1f28 !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      padding: 24px !important;
     }
 
     .ant-modal-footer {
-      border-color: var(--border-color);
+      border-color: #283142 !important;
+      background-color: #1a1f28 !important;
+      padding: 12px 24px !important;
+      border-radius: 0 0 8px 8px !important;
+    }
+  }
+
+  // 遮罩层加深
+  .ant-modal-mask {
+    background-color: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(2px);
+  }
+}
+
+// 修改API Key展示模态框
+.ant-modal[id*="rcDialogTitle"] {
+  .ant-modal-content {
+    background-color: #1e2736 !important; // 更深的蓝灰色
+  }
+}
+
+// 确认对话框样式增强
+.ant-modal-confirm {
+  .ant-modal-confirm-body {
+    .ant-modal-confirm-title {
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .ant-modal-confirm-content {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    
+    .anticon {
+      color: #faad14 !important;
+    }
+  }
+}
+
+// 按钮悬停增强
+.ant-btn-text {
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    
+    span {
+      color: #ffffff !important;
+    }
+  }
+}
+
+// Regenerate按钮特殊样式
+.regenerate-btn {
+  &:hover {
+    background-color: rgba(24, 144, 255, 0.15) !important;
+    
+    span {
+      color: #1890ff !important;
+    }
+  }
+  
+  .anticon {
+    color: rgba(24, 144, 255, 0.85) !important;
+  }
+}
+
+// Tooltip增强
+.ant-tooltip {
+  .ant-tooltip-inner {
+    background-color: #1f1f1f !important;
+    border: 1px solid #303030 !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 500;
+    padding: 8px 12px;
+  }
+  
+  .ant-tooltip-arrow {
+    &::before {
+      background-color: #1f1f1f !important;
+    }
+  }
+}
+
+// 下拉框样式增强
+.ant-select-dropdown {
+  background-color: #1f1f1f !important;
+  
+  .ant-select-item {
+    color: rgba(255, 255, 255, 0.85);
+    
+    &-option {
+      &-active:not(.ant-select-item-option-disabled) {
+        background-color: #34495e !important;
+        color: #ffffff !important;
+      }
+      
+      &-selected:not(.ant-select-item-option-disabled) {
+        background-color: #2b4c6e !important;
+        color: #ffffff !important;
+        font-weight: 600;
+      }
+      
+      &-disabled {
+        color: rgba(255, 255, 255, 0.3) !important;
+      }
+    }
+  }
+}
+
+// 修复选中后的Select显示
+.ant-select-selection-item {
+  color: #ffffff !important;
+}
+
+// Alert组件样式增强
+.ant-alert {
+  background-color: #111b26 !important;
+  border: 1px solid #15395b !important;
+  
+  &-info {
+    .ant-alert-icon {
+      color: #1890ff !important;
+    }
+    
+    .ant-alert-message {
+      color: #ffffff !important;
+      font-weight: 500;
+    }
+    
+    .ant-alert-description {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+  
+  &-warning {
+    background-color: #2b2111 !important;
+    border: 1px solid #594214 !important;
+    
+    .ant-alert-icon {
+      color: #faad14 !important;
+    }
+    
+    .ant-alert-message {
+      color: #ffffff !important;
+      font-weight: 500;
+    }
+    
+    .ant-alert-description {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+}
+
+// 成功提示样式
+.ant-alert-success {
+  background-color: #102417 !important; // 更深、更蓝的绿色
+  border: 1px solid #204d2d !important; // 蓝绿色边框
+  border-radius: 4px;
+  
+  .ant-alert-icon {
+    color: #49aa19 !important; // 略带蓝的绿色
+  }
+  
+  .ant-alert-message {
+    color: #ffffff !important;
+    font-weight: 500;
+  }
+  
+  .ant-alert-description {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+}
+
+// API Keys页面的Alert样式
+.api-keys-alert {
+  &.ant-alert-info {
+    background-color: #142638 !important; // 深蓝色
+    border: 1px solid #1e4976 !important;
+  }
+  
+  &.ant-alert-warning {
+    background-color: #332a0e !important;
+    border: 1px solid #7c6514 !important;
+  }
+  
+  &.ant-alert-success {
+    background-color: #102815 !important;
+    border: 1px solid #1e512d !important;
+  }
+  
+  .ant-alert-message {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+  }
+  
+  .ant-alert-description {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 14px !important;
+    margin-top: 4px !important;
+  }
+}
+
+// 特定API Key展示模态框样式
+.api-key-display-modal {
+  .ant-modal-content {
+    background-color: #132035 !important; // 更深、更鲜艳的蓝色调
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid #1e3a5c !important; // 亮蓝色边框
+    
+    .ant-modal-header {
+      background-color: #132035 !important;
+      border-bottom: 1px solid #1e3a5c !important; // 亮蓝色边框
+    }
+    
+    .ant-modal-body {
+      background-color: #132035 !important;
+      padding: 24px !important;
+    }
+    
+    .ant-modal-footer {
+      background-color: #132035 !important;
+      border-top: 1px solid #1e3a5c !important;
+    }
+  }
+  
+  // 加深遮罩
+  & + .ant-modal-mask {
+    background-color: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(3px);
+  }
+  
+  // 文本容器样式
+  .ant-typography {
+    &.ant-typography-code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+      background-color: #0c1524 !important; // 深蓝色背景
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid #234372 !important; // 更亮的蓝色边框
+      border-radius: 6px;
+      padding: 20px !important;
+    }
+  }
+  
+  // 成功提示
+  .api-keys-alert.ant-alert-success {
+    background-color: #0e2427 !important; // 蓝绿色背景
+    border: 1px solid #174e54 !important; // 蓝绿色边框
+    margin-bottom: 24px !important;
+    border-radius: 6px;
+  }
+  
+  // 复制按钮样式
+  .ant-btn-primary {
+    background-color: #1890ff !important;
+    border-color: #1890ff !important;
+    font-weight: 500;
+    height: 40px;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.25) !important;
+    
+    &:hover {
+      background-color: #40a9ff !important;
+      border-color: #40a9ff !important;
+      box-shadow: 0 4px 12px rgba(24, 144, 255, 0.35) !important;
+    }
+  }
+  
+  .ant-btn {
+    border-radius: 6px;
+  }
+}
+
+// 团队列表表格样式
+.team-list-card {
+  .ant-card-head {
+    border-bottom: 1px solid #283142;
+    padding: 0 24px;
+  }
+  
+  .ant-card-body {
+    padding: 16px 24px 24px;
+  }
+}
+
+.team-list-table {
+  // 控制表格整体宽度
+  max-width: 1000px;
+  margin: 0 auto;
+  
+  // 表头样式
+  .ant-table-thead > tr > th {
+    background-color: #182334 !important;
+    border-bottom: 1px solid #283142 !important;
+    padding: 12px 16px !important;
+    
+    &::before {
+      display: none !important; // 移除默认的表头分隔线
+    }
+  }
+  
+  // 表格行样式
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #232e3f !important;
+    padding: 12px 16px !important;
+    transition: background-color 0.2s;
+  }
+  
+  // 表格行悬停效果
+  .ant-table-tbody > tr:hover > td {
+    background-color: #182334 !important;
+  }
+  
+  // 状态标签样式
+  .ant-tag {
+    margin-right: 0;
+    border: none;
+    font-weight: 500;
+  }
+  
+  // 操作按钮样式 - 使按钮更紧凑
+  .team-action-btn, .team-action-delete-btn {
+    border-radius: 4px;
+    padding: 0 8px;
+    height: 32px;
+    line-height: 32px;
+    
+    .anticon {
+      margin-right: 4px;
+    }
+  }
+  
+  // 调整操作按钮
+  .team-action-btn {
+    color: #1890ff;
+    
+    &:hover {
+      background-color: rgba(24, 144, 255, 0.15) !important;
+      color: #40a9ff;
+    }
+  }
+  
+  // 删除按钮样式
+  .team-action-delete-btn {
+    color: #ff4d4f;
+    
+    &:hover {
+      background-color: rgba(255, 77, 79, 0.15) !important;
+      color: #ff7875;
+    }
+  }
+}
+
+// 团队删除模态框
+.team-delete-modal {
+  .ant-modal-content {
+    background-color: #1a1f28 !important;
+    
+    .ant-modal-header {
+      background-color: #1a1f28 !important;
+      border-color: #283142 !important;
+    }
+    
+    .ant-modal-body {
+      background-color: #1a1f28 !important;
+      padding-top: 20px !important;
+    }
+
+    .ant-modal-footer {
+      background-color: #1a1f28 !important;
+      border-color: #283142 !important;
+    }
+  }
+  
+  .ant-btn-primary.ant-btn-dangerous {
+    background-color: #ff4d4f !important;
+    border-color: #ff4d4f !important;
+    
+    &:hover {
+      background-color: #ff7875 !important;
+      border-color: #ff7875 !important;
+    }
+  }
+}
+
+// 团队管理页面样式
+.team-management-card {
+  .ant-card-body {
+    padding: 20px 24px;
+  }
+  
+  // 团队管理标签页
+  .team-management-tabs {
+    .ant-tabs-nav {
+      margin-bottom: 24px;
+      
+      .ant-tabs-tab {
+        padding: 8px 16px;
+        margin-right: 8px;
+        
+        &.ant-tabs-tab-active .ant-tabs-tab-btn {
+          color: #1890ff;
+        }
+        
+        .ant-tabs-tab-btn {
+          color: rgba(255, 255, 255, 0.65);
+          
+          .anticon {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+    
+    .ant-tabs-content {
+      width: 100%;
+    }
+  }
+  
+  // 表格容器样式
+  .table-container {
+    border: 1px solid #263142;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #1a1f28;
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  // 表格标题样式
+  .member-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #182334;
+    border-bottom: 1px solid #263142;
+    
+    .member-table-title {
+      display: flex;
+      align-items: center;
+      
+      .anticon {
+        font-size: 18px;
+      }
+    }
+    
+    .member-count-tag {
+      background-color: #15395b;
+      color: #ffffff;
+      border: none;
+      font-weight: 600;
+      padding: 2px 12px;
+      border-radius: 12px;
+    }
+  }
+  
+  // 成员表格样式
+  .members-table {
+    width: 100%;
+    
+    .ant-table {
+      background-color: transparent !important;
+    }
+    
+    .ant-table-container {
+      border: none !important;
+    }
+    
+    .ant-table-thead > tr > th {
+      background-color: #182334 !important;
+      border-bottom: 1px solid #263142 !important;
+      padding: 12px 16px !important;
+      
+      &::before {
+        display: none !important;
+      }
+    }
+    
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid #1e2736 !important;
+      padding: 12px 16px !important;
+      background-color: #1a1f28 !important;
+      
+      &:last-child {
+        border-bottom: none !important;
+      }
+    }
+    
+    .ant-table-tbody > tr:last-child > td {
+      border-bottom: none !important;
+    }
+    
+    // 表格行悬停效果
+    .ant-table-tbody > tr:hover > td {
+      background-color: #202a3a !important;
+    }
+    
+    // Role选择器样式
+    .ant-select {
+      .ant-select-selector {
+        background-color: #15395b !important;
+        border-color: #1890ff !important;
+        color: #ffffff !important;
+      }
+      
+      .ant-select-arrow {
+        color: #1890ff !important;
+      }
+    }
+    
+    // Remove按钮样式
+    .member-action-btn {
+      background-color: rgba(255, 77, 79, 0.1) !important;
+      border-radius: 4px;
+      color: #ff7875 !important;
+      
+      &:hover {
+        background-color: rgba(255, 77, 79, 0.2) !important;
+        color: #ff4d4f !important;
+      }
+    }
+  }
+  
+  // 调整邮件列和操作列的宽度
+  .members-table {
+    .ant-table-cell:first-child {
+      padding-left: 20px !important;
+    }
+    
+    .ant-table-cell:last-child {
+      padding-right: 20px !important;
+      text-align: right;
+    }
+  }
+  
+  // 危险区域样式
+  .danger-zone {
+    border: 1px solid #331c1c !important;
+    background-color: #241818 !important;
+    border-radius: 8px;
+    width: 100%;
+    padding: 24px;
+    margin-top: 32px;
+    
+    .ant-divider {
+      border-color: #3e2a2a !important;
+    }
+  }
+}
+
+// 角色选择下拉菜单
+.role-select-dropdown {
+  background-color: #1a1f28 !important;
+  border: 1px solid #263142 !important;
+  
+  .ant-select-item {
+    color: rgba(255, 255, 255, 0.85) !important;
+    
+    &-option-active {
+      background-color: #15395b !important;
+    }
+    
+    &-option-selected {
+      background-color: #15395b !important;
+      color: #ffffff !important;
     }
   }
 }

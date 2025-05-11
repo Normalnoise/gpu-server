@@ -69,6 +69,37 @@ const TeamOverview: React.FC = () => {
     },
   ]);
 
+  const handleCreateTeam = () => {
+    navigate('/teams/create');
+  };
+
+  if (teams.length === 0) {
+    return (
+      <Card
+        style={{ 
+          background: '#141414', 
+          border: '1px solid #303030',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px',
+          textAlign: 'center'
+        }}
+      >
+        <Typography.Title level={1} style={{ marginBottom: '16px' }}>
+          Team Management
+        </Typography.Title>
+        <Typography.Text type="secondary" style={{ marginBottom: '24px' }}>
+          Create a team to invite and manage members.
+        </Typography.Text>
+        <Button type="primary" size="large" onClick={handleCreateTeam}>
+          Create Team
+        </Button>
+      </Card>
+    );
+  }
+
   const handleManageTeam = (teamId: string) => {
     navigate(`/teams/${teamId}/manage`);
   };

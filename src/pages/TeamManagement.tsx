@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Tabs, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typography, Divider, Checkbox } from 'antd';
-import { UserOutlined, TeamOutlined, SettingOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, SettingOutlined, ArrowLeftOutlined, MailOutlined, IdcardOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import type { ColumnsType } from 'antd/es/table';
 
 interface TeamMember {
   id: string;
   email: string;
   role: 'owner' | 'admin' | 'member';
   status: 'active' | 'pending';
+  invitedAt: string;
+  expiresAt?: string;
 }
 
 interface Team {
@@ -20,8 +23,7 @@ interface Team {
 }
 
 const { TabPane } = Tabs;
-
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const TeamManagement: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -36,10 +38,10 @@ const TeamManagement: React.FC = () => {
     description: 'Machine Learning Development Team',
     currentUserRole: 'admin',
     members: [
-      { id: '1', email: 'owner@example.com', role: 'owner', status: 'active' },
-      { id: '2', email: 'admin@example.com', role: 'admin', status: 'active' },
-      { id: '3', email: 'member1@example.com', role: 'member', status: 'active' },
-      { id: '4', email: 'pending1@example.com', role: 'member', status: 'pending' },
+      { id: '1', email: 'owner@example.com', role: 'owner', status: 'active', invitedAt: '2024-04-01' },
+      { id: '2', email: 'admin@example.com', role: 'admin', status: 'active', invitedAt: '2024-04-01' },
+      { id: '3', email: 'member1@example.com', role: 'member', status: 'active', invitedAt: '2024-04-01' },
+      { id: '4', email: 'pending1@example.com', role: 'member', status: 'pending', invitedAt: '2024-04-01', expiresAt: '2024-05-01' },
     ]
   });
 
@@ -75,16 +77,59 @@ const TeamManagement: React.FC = () => {
     }
   };
 
-  const columns = [
+  const handleCancelInvite = async (memberId: string) => {
+    try {
+      // TODO: 实现取消邀请的API调用
+      console.log('Canceling invite:', memberId);
+      message.success('Invitation canceled successfully');
+    } catch (error) {
+      message.error('Failed to cancel invite');
+    }
+  };
+
+  // 设计统一的表头样式
+  const renderTableTitle = (title: string, icon: React.ReactNode, count: number) => (
+    <div className="member-table-header">
+      <div className="member-table-title">
+        {icon}
+        <Text strong style={{ color: '#ffffff', fontSize: '16px', marginLeft: '8px' }}>
+          {title}
+        </Text>
+      </div>
+      <Tag className="member-count-tag">
+        {count}
+      </Tag>
+    </div>
+  );
+
+  const activeMembers = team.members.filter(m => m.status === 'active');
+  const pendingMembers = team.members.filter(m => m.status === 'pending');
+
+  const columns: ColumnsType<TeamMember> = [
     {
-      title: 'Email',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <MailOutlined style={{ marginRight: '8px' }} />
+          Email
+        </Text>
+      ),
       dataIndex: 'email',
       key: 'email',
+      width: '40%',
+      render: (email: string) => (
+        <Text style={{ color: '#ffffff' }}>{email}</Text>
+      ),
     },
     {
-      title: 'Role',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <IdcardOutlined style={{ marginRight: '8px' }} />
+          Role
+        </Text>
+      ),
       dataIndex: 'role',
       key: 'role',
+      width: '25%',
       render: (role: string, record: TeamMember) => {
         const colorMap = {
           owner: 'gold',
@@ -93,15 +138,27 @@ const TeamManagement: React.FC = () => {
         };
         return (
           <Space>
-            <Tag color={colorMap[role as keyof typeof colorMap]}>{role.toUpperCase()}</Tag>
-            {record.status === 'pending' && <Tag color="orange">Pending</Tag>}
+            <Tag color={colorMap[role as keyof typeof colorMap]} style={{ fontWeight: 500, padding: '2px 8px' }}>
+              {role.toUpperCase()}
+            </Tag>
+            {record.status === 'pending' && (
+              <Tag color="orange" style={{ fontWeight: 500, padding: '2px 8px' }}>
+                PENDING
+              </Tag>
+            )}
           </Space>
         );
       },
     },
     {
-      title: 'Actions',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff', display: 'flex', justifyContent: 'flex-end' }}>
+          Actions
+        </Text>
+      ),
       key: 'action',
+      width: '35%',
+      align: 'right',
       render: (_: any, record: TeamMember) => {
         if (team.currentUserRole !== 'owner' && record.role === 'owner') {
           return null;
@@ -113,6 +170,7 @@ const TeamManagement: React.FC = () => {
                 defaultValue={record.role}
                 style={{ width: 100 }}
                 onChange={(value) => handleUpdateRole(record.id, value)}
+                dropdownClassName="role-select-dropdown"
               >
                 <Select.Option value="admin">Admin</Select.Option>
                 <Select.Option value="member">Member</Select.Option>
@@ -123,6 +181,7 @@ const TeamManagement: React.FC = () => {
               <Button
                 type="text"
                 danger
+                className="member-action-btn"
                 onClick={() => handleRemoveMember(record.id)}
               >
                 Remove
@@ -134,16 +193,87 @@ const TeamManagement: React.FC = () => {
     },
   ];
 
+  const pendingColumns: ColumnsType<TeamMember> = [
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <MailOutlined style={{ marginRight: '8px' }} />
+          Email
+        </Text>
+      ),
+      dataIndex: 'email',
+      key: 'email',
+      width: '30%',
+      render: (email: string) => (
+        <Text style={{ color: '#ffffff' }}>{email}</Text>
+      ),
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <ClockCircleOutlined style={{ marginRight: '8px' }} />
+          Invited At
+        </Text>
+      ),
+      dataIndex: 'invitedAt',
+      key: 'invitedAt',
+      width: '25%',
+      render: (invitedAt: string) => {
+        return <Text style={{ color: '#ffffff' }}>{invitedAt}</Text>;
+      },
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <ClockCircleOutlined style={{ marginRight: '8px', color: '#ff7875' }} />
+          Expires At
+        </Text>
+      ),
+      dataIndex: 'expiresAt',
+      key: 'expiresAt',
+      width: '25%',
+      render: (expiresAt: string) => {
+        return <Text style={{ color: '#ffffff' }}>{expiresAt}</Text>;
+      },
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff', display: 'flex', justifyContent: 'flex-end' }}>
+          Actions
+        </Text>
+      ),
+      key: 'action',
+      width: '20%',
+      align: 'right',
+      render: (_: any, record: TeamMember) => (
+        <Button
+          type="text"
+          danger
+          className="member-action-btn"
+          onClick={() => handleCancelInvite(record.id)}
+        >
+          Cancel
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <Card
-      title={
+    <Card style={{ background: '#141414', border: '1px solid #303030' }} className="team-management-card">
+      <Space style={{ marginBottom: 16 }}>
+        <Button 
+          icon={<ArrowLeftOutlined />} 
+          onClick={() => navigate('/teams')}
+        >
+          Back to Team Overview
+        </Button>
+      </Space>
+
+      <Space style={{ width: '100%', justifyContent: 'space-between', marginBottom: 16 }}>
         <Space>
-          <TeamOutlined />
-          {team.name}
+          <TeamOutlined style={{ color: '#1890ff', fontSize: '18px' }} />
+          <Typography.Title level={4} style={{ margin: 0, color: '#ffffff' }}>{team.name}</Typography.Title>
         </Space>
-      }
-      style={{ background: '#141414', border: '1px solid #303030' }}
-      extra={
         <Button
           type="primary"
           icon={<UserOutlined />}
@@ -152,17 +282,8 @@ const TeamManagement: React.FC = () => {
         >
           Invite Member
         </Button>
-      }
-    >
-      <Space style={{ marginBottom: 16 }}>
-        <Button 
-          icon={<ArrowLeftOutlined />} 
-          onClick={() => navigate(`/teams/${teamId}`)}
-        >
-          Back to Team Overview
-        </Button>
       </Space>
-      <Tabs defaultActiveKey="members">
+      <Tabs defaultActiveKey="members" className="team-management-tabs">
         <TabPane
           tab={
             <span>
@@ -172,50 +293,31 @@ const TeamManagement: React.FC = () => {
           }
           key="members"
         >
-          <Table
-            columns={columns}
-            dataSource={team.members}
-            rowKey="id"
-            pagination={false}
-          />
-        </TabPane>
-        <TabPane
-          tab={
-            <span>
-              <SettingOutlined />
-              Team Settings
-            </span>
-          }
-          key="settings"
-        >
-          {/* TODO: 实现团队设置功能 */}
-          <p style={{ color: '#fff' }}>Team settings feature is under development...</p>
-        </TabPane>
-        <TabPane
-          tab={
-            <span>
-              <UserOutlined />
-              Pending Invites
-            </span>
-          }
-          key="2"
-        >
-          <Table
-            dataSource={team.members.filter(m => m.status === 'pending')}
-            columns={columns}
-            rowKey="id"
-          />
-        </TabPane>
-        <TabPane
-          tab={
-            <span>
-              <SettingOutlined />
-              Danger Zone
-            </span>
-          }
-          key="3"
-        >
-          <div style={{ padding: '24px', border: '1px solid #ff4d4f', borderRadius: '8px' }}>
+          <div className="table-container">
+            {renderTableTitle('Active Members', <UserOutlined style={{ color: '#52c41a' }} />, activeMembers.length)}
+            <Table
+              columns={columns}
+              dataSource={activeMembers}
+              rowKey="id"
+              pagination={false}
+              className="members-table"
+              tableLayout="fixed"
+            />
+          </div>
+
+          <div className="table-container" style={{ marginTop: '32px' }}>
+            {renderTableTitle('Pending Invites', <ClockCircleOutlined style={{ color: '#faad14' }} />, pendingMembers.length)}
+            <Table
+              columns={pendingColumns}
+              dataSource={pendingMembers}
+              rowKey="id"
+              pagination={false}
+              className="members-table"
+              tableLayout="fixed"
+            />
+          </div>
+
+          <div className="danger-zone">
             <Title level={4} style={{ color: '#ff4d4f' }}>Danger Zone</Title>
             <Divider />
             <Space direction="vertical" style={{ width: '100%' }}>
@@ -232,6 +334,18 @@ const TeamManagement: React.FC = () => {
               </div>
             </Space>
           </div>
+        </TabPane>
+        <TabPane
+          tab={
+            <span>
+              <SettingOutlined />
+              Team Settings
+            </span>
+          }
+          key="settings"
+        >
+          {/* TODO: 实现团队设置功能 */}
+          <p style={{ color: '#fff' }}>Team settings feature is under development...</p>
         </TabPane>
       </Tabs>
 
@@ -271,9 +385,8 @@ const TeamManagement: React.FC = () => {
           </Form.Item>
           <Form.Item name="permissions" label="Permissions">
             <Checkbox.Group>
-              <Checkbox value="create_project">Create Project</Checkbox>
-              <Checkbox value="manage_resources">Manage Resources</Checkbox>
-              <Checkbox value="invite_members">Invite Members</Checkbox>
+              <Checkbox value="create_inference_api_key">Create Inference API Key</Checkbox>
+              <Checkbox value="create_storage_secret_key">Create Storage Secret Key</Checkbox>
             </Checkbox.Group>
           </Form.Item>
         </Form>

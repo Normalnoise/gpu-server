@@ -35,7 +35,7 @@ const Sidebar = () => {
           onClick={handleMenuClick}
           style={{ background: '#141414' }}
         >
-          <Menu.Item key="/" icon={<HomeOutlined />}>Home</Menu.Item>
+          <Menu.Item key="/teams/empty" icon={<HomeOutlined />}>Home</Menu.Item>
           <Menu.Item key="/instances" icon={<CloudServerOutlined />}>Instances</Menu.Item>
           <Menu.Item key="/object-storage" icon={<CloudOutlined />}>Object Storage</Menu.Item>
           <Menu.Item key="/serverless-models" icon={<CodeOutlined />}>Serverless Models</Menu.Item>

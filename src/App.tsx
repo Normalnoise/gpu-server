@@ -5,6 +5,8 @@ import TeamManagement from './pages/TeamManagement';
 import TeamList from './pages/TeamList';
 import CreateTeam from './pages/CreateTeam';
 import TeamOverview from './pages/TeamOverview';
+import ApiKeys from './pages/ApiKeys';
+import EmptyTeam from './pages/EmptyTeam';
 import { darkTheme } from './theme/darkTheme';
 import './App.less';
 
@@ -19,11 +21,13 @@ function App() {
           <Layout style={{ background: '#141414' }}>
             <Content style={{ margin: '24px 16px', padding: 24, minHeight: 280, background: '#1f1f1f' }}>
               <Routes>
-                <Route path="/" element={<Navigate to="/teams" replace />} />
+                <Route path="/" element={<Navigate to="/teams/empty" replace />} />
+                <Route path="/teams/empty" element={<EmptyTeam />} />
                 <Route path="/teams" element={<TeamList />} />
                 <Route path="/teams/create" element={<CreateTeam />} />
                 <Route path="/teams/:teamId" element={<TeamOverview />} />
                 <Route path="/teams/:teamId/manage" element={<TeamManagement />} />
+                <Route path="/api-keys" element={<ApiKeys />} />
               </Routes>
             </Content>
           </Layout>
