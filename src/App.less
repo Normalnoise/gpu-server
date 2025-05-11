@@ -1,0 +1,138 @@
+@import 'antd/dist/reset.css';
+
+// 全局主题样式
+:root {
+  --primary-color: #1890ff;
+  --background-color: #000000;
+  --component-background: #141414;
+  --text-color: rgba(255, 255, 255, 0.85);
+  --border-color: #303030;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+// 布局样式
+.ant-layout {
+  background: var(--background-color);
+
+  .ant-layout-sider {
+    background: #001529;
+  }
+
+  .ant-layout-content {
+    background: var(--component-background);
+    border-radius: 4px;
+  }
+}
+
+// 卡片样式
+.ant-card {
+  background: var(--component-background);
+  border-color: var(--border-color);
+
+  .ant-card-head {
+    color: var(--text-color);
+    border-color: var(--border-color);
+  }
+}
+
+// 表格样式
+.ant-table {
+  background: var(--component-background);
+  color: var(--text-color);
+
+  .ant-table-thead > tr > th {
+    background: #1f1f1f;
+    color: var(--text-color);
+    border-color: var(--border-color);
+  }
+
+  .ant-table-tbody > tr > td {
+    border-color: var(--border-color);
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #1f1f1f;
+  }
+}
+
+// 标签页样式
+.ant-tabs {
+  color: var(--text-color);
+
+  .ant-tabs-tab {
+    color: var(--text-color);
+
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+
+  .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--primary-color);
+  }
+
+  .ant-tabs-ink-bar {
+    background: var(--primary-color);
+  }
+}
+
+// 按钮样式
+.ant-btn {
+  &:not(.ant-btn-primary) {
+    background: transparent;
+    border-color: var(--border-color);
+    color: var(--text-color);
+
+    &:hover {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+  }
+}
+
+// 表单样式
+.ant-form-item-label > label {
+  color: var(--text-color);
+}
+
+.ant-input,
+.ant-select-selector {
+  background-color: var(--component-background) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+
+  &:hover,
+  &:focus {
+    border-color: var(--primary-color) !important;
+  }
+}
+
+// 模态框样式
+.ant-modal {
+  .ant-modal-content {
+    background-color: var(--component-background);
+
+    .ant-modal-header {
+      background-color: var(--component-background);
+      border-color: var(--border-color);
+
+      .ant-modal-title {
+        color: var(--text-color);
+      }
+    }
+
+    .ant-modal-body {
+      background-color: var(--component-background);
+    }
+
+    .ant-modal-footer {
+      border-color: var(--border-color);
+    }
+  }
+}
