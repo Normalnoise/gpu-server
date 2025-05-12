@@ -1,0 +1,350 @@
+.serverless-models-container {
+  padding: 0 24px 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+  
+  // Header navigation
+  .header-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #303030;
+    
+    .page-title {
+      .ant-typography {
+        color: #ffffff;
+        font-size: 26px;
+        letter-spacing: -0.3px;
+      }
+    }
+    
+    .right-section {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      
+      .nav-link {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.3s;
+        padding: 8px 0;
+    
+    &:hover {
+          color: #1890ff;
+        }
+      }
+    }
+    
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      
+      .balance {
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 500;
+      }
+      
+      .deposit-button {
+        height: 36px;
+        font-weight: 500;
+        padding: 0 20px;
+        font-size: 15px;
+        border-radius: 6px;
+        background: #3047ef;
+        border-color: #3047ef;
+        
+        &:hover {
+          background: #4058ff;
+          border-color: #4058ff;
+        }
+    }
+    
+      .user-dropdown {
+        background: transparent;
+        color: #ffffff;
+        border: none;
+        font-weight: 500;
+        padding: 4px 0;
+        display: flex;
+        align-items: center;
+        
+        &:hover {
+          color: #1890ff;
+          background: transparent;
+    }
+      }
+    }
+  }
+  
+  // Subtitle
+  .models-subtitle {
+    margin-bottom: 32px;
+    
+    .ant-typography {
+      color: rgba(255, 255, 255, 0.65);
+    }
+  }
+  
+  // Toolbar styles
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .search-section {
+      display: flex;
+      gap: 8px;
+      max-width: 600px;
+      width: 100%;
+      
+      .search-input {
+        flex-grow: 1;
+        background-color: #141414;
+        border-color: #303030;
+        
+        &:hover, &:focus {
+          border-color: #1890ff;
+        }
+        
+        input {
+      color: #ffffff;
+        }
+        
+        .ant-input-prefix {
+          color: rgba(255, 255, 255, 0.45);
+        }
+      }
+      
+      .filter-button, .reset-button {
+        background: #141414;
+        border-color: #303030;
+        color: #ffffff;
+        
+        &:hover {
+          background: #1f1f1f;
+          border-color: #1890ff;
+          color: #1890ff;
+        }
+        
+        &[disabled] {
+          background: #141414;
+          color: rgba(255, 255, 255, 0.25);
+          border-color: #303030;
+        }
+      }
+    }
+    
+    .models-count {
+      color: rgba(255, 255, 255, 0.45);
+      }
+    }
+  
+  // Filter section
+  .filter-section {
+    background-color: #141414;
+    border: 1px solid #303030;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    
+    .ant-slider-rail {
+      background-color: #303030;
+    }
+    
+    .ant-slider-track {
+      background-color: #1890ff;
+    }
+    
+    .ant-slider-handle {
+      border-color: #1890ff;
+    }
+  }
+  
+  // Models grid
+  .models-grid {
+    margin-top: 24px;
+  }
+  
+  // Model card styles
+  .model-card {
+    height: 100%;
+    border: 1px solid #303030;
+    background-color: #141414 !important;
+    border-radius: 8px;
+    transition: all 0.3s;
+    overflow: hidden;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      border-color: #1890ff;
+    }
+    
+    .ant-card-body {
+      height: 100%;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    // Card header with logo and title
+    .model-card-header {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      position: relative;
+      
+      .model-logo {
+        width: 36px;
+        height: 36px;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        
+        img {
+          width: 28px;
+          height: 28px;
+          object-fit: contain;
+        }
+      }
+      
+      .model-title {
+        flex-grow: 1;
+        
+        .model-name {
+          font-weight: 600;
+          color: #ffffff;
+          font-size: 16px;
+          margin: 0;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+      
+      .model-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        
+        .free-badge {
+          font-weight: 500;
+          padding: 2px 6px;
+        }
+        
+        .price-badge {
+          color: #ffffff;
+          font-weight: 600;
+        }
+      }
+    }
+    
+    // Model description
+    .model-description {
+      padding: 0 16px;
+      margin-bottom: 16px;
+      height: 60px;
+      
+      .ant-typography {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+    
+    // Divider
+    .model-divider {
+      margin: 0 16px 12px;
+      background-color: #303030;
+    }
+    
+    // Model details section
+    .model-details {
+      padding: 0 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+      
+      .model-detail-item {
+        .ant-typography {
+          color: #ffffff;
+          
+          &:first-child {
+            font-weight: 600;
+            margin-right: 4px;
+          }
+        }
+        
+        .model-modalities {
+          display: flex;
+          flex-wrap: wrap;
+          margin-top: 4px;
+          gap: 4px;
+  
+  .ant-tag {
+            margin: 0;
+    border-radius: 4px;
+  }
+        }
+      }
+    }
+  }
+  
+  // No results message
+  .no-results {
+    text-align: center;
+    padding: 48px 0;
+    
+    .no-results-icon {
+      font-size: 48px;
+      color: #555;
+    }
+  
+    .ant-typography {
+      margin-top: 16px;
+      color: #ffffff;
+      
+      &.ant-typography-secondary {
+        color: rgba(255, 255, 255, 0.65);
+  }
+    }
+  }
+  
+  // General typography styles
+  .ant-typography {
+    color: #ffffff;
+    
+    &.ant-typography-secondary {
+      color: rgba(255, 255, 255, 0.65);
+    }
+  }
+  
+  // Tags
+  .ant-tag {
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+  }
+}

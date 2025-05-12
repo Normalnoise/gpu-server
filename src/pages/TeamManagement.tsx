@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Tabs, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typography, Divider, Checkbox } from 'antd';
+import { Card, Tabs, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typography, Divider, Checkbox, Row, Col, DatePicker, Statistic, Tooltip, Radio } from 'antd';
+import ModelUsageDetailModal from '../components/ModelUsageDetailModal';
+import type { RadioChangeEvent } from 'antd';
+import dayjs from 'dayjs';
 import { 
   UserOutlined, 
   TeamOutlined, 
@@ -17,7 +20,19 @@ import {
   YoutubeOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
-  EyeInvisibleOutlined
+  EyeInvisibleOutlined,
+  AreaChartOutlined,
+  DollarOutlined,
+  FileTextOutlined,
+  ApiOutlined,
+  FullscreenOutlined,
+  InfoCircleOutlined,
+  FilterOutlined,
+  ExportOutlined,
+  BarChartOutlined,
+  PieChartOutlined,
+  LineChartOutlined,
+  UserSwitchOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
@@ -52,9 +67,65 @@ interface Team {
   apiKeys: TeamApiKey[];
 }
 
+interface UsageRecord {
+  id: string;
+  timestamp: string;
+  provider: string;
+  model: string;
+  app: string;
+  tokensInput: number;
+  tokensOutput: number;
+  totalTokens: number;
+  cost: number;
+  speed: number;
+  status: string;
+  user: string;
+  date: string; // Date in YYYY-MM-DD format for grouping
+}
+
+interface UsageSummary {
+  spend: {
+    lastDay: string;
+    lastWeek: string;
+  };
+  tokens: {
+    lastDay: number;
+    lastWeek: number;
+  };
+  requests: {
+    lastDay: number;
+    lastWeek: number;
+  };
+}
+
+interface ModelUsageSummary {
+  model: string;
+  provider: string;
+  cost: number;
+  tokens: number;
+  requests: number;
+  color: string;
+}
+
+interface DailyUsage {
+  date: string;
+  id?: string;
+  models: Record<string, {
+    cost: number;
+    tokens: number;
+    requests: number;
+  }>;
+  total: {
+    cost: number;
+    tokens: number;
+    requests: number;
+  };
+}
+
 const { TabPane } = Tabs;
 const { Title, Text, Paragraph } = Typography;
 const { confirm } = Modal;
+const { RangePicker } = DatePicker;
 
 const TeamManagement: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -65,6 +136,16 @@ const TeamManagement: React.FC = () => {
   const [form] = Form.useForm();
   const [apiKeyForm] = Form.useForm();
   const [apiKeyVisibility, setApiKeyVisibility] = useState<Record<string, boolean>>({});
+  const [usageFilter, setUsageFilter] = useState<string>('team');
+  const [modelFilter, setModelFilter] = useState<string>('all');
+  const [chartType, setChartType] = useState<string>('spend');
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
+    dayjs().subtract(7, 'day'),
+    dayjs()
+  ]);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [modelDetailVisible, setModelDetailVisible] = useState(false);
+  const [selectedModelData, setSelectedModelData] = useState<any>(null);
 
   // 模拟团队数据
   const [team] = useState<Team>({
@@ -84,6 +165,560 @@ const TeamManagement: React.FC = () => {
       { id: '3', name: 'Testing API Key', key: 'sk_test_123123123', createdAt: '2024-04-07', createdBy: 'member1@example.com', status: 'disabled', lastUsed: '2024-04-08' },
     ]
   });
+
+  // 模拟使用统计数据
+  const [teamUsageSummary] = useState<UsageSummary>({
+    spend: {
+      lastDay: '$0.579',
+      lastWeek: '$7.97',
+    },
+    tokens: {
+      lastDay: 497000,
+      lastWeek: 3770000,
+    },
+    requests: {
+      lastDay: 868,
+      lastWeek: 4950,
+    }
+  });
+
+  // 模拟每日使用数据
+  const [dailyUsage] = useState<DailyUsage[]>([
+    {
+      date: '2024-04-27',
+      models: {
+        'microsoft/wizardlm-2-8x22b': { cost: 0.000627, tokens: 698, requests: 1 },
+        'gryphe/mythomax-l2-13b': { cost: 0.000082, tokens: 184, requests: 1 },
+      },
+      total: { cost: 0.000709, tokens: 882, requests: 2 }
+    },
+    {
+      date: '2024-04-28',
+      models: {},
+      total: { cost: 0, tokens: 0, requests: 0 }
+    },
+    {
+      date: '2024-04-29',
+      models: {},
+      total: { cost: 0, tokens: 0, requests: 0 }
+    },
+    {
+      date: '2024-04-30',
+      models: {
+        'cohere/command-r-plus': { cost: 0.001073, tokens: 631, requests: 1 },
+      },
+      total: { cost: 0.001073, tokens: 631, requests: 1 }
+    },
+    {
+      date: '2024-05-01',
+      models: {
+        'openai/gpt-4-turbo': { cost: 0.002444, tokens: 1880, requests: 2 },
+      },
+      total: { cost: 0.002444, tokens: 1880, requests: 2 }
+    },
+    {
+      date: '2024-05-02',
+      models: {
+        'anthropic/claude-3-haiku-20240307': { cost: 0.000477, tokens: 795, requests: 2 },
+      },
+      total: { cost: 0.000477, tokens: 795, requests: 2 }
+    },
+    {
+      date: '2024-05-03',
+      models: {
+        'mistral/mistral-large-latest': { cost: 0.002109, tokens: 1045, requests: 2 },
+      },
+      total: { cost: 0.002109, tokens: 1045, requests: 2 }
+    },
+    {
+      date: '2024-05-04',
+      models: {
+        'openai/gpt-4o': { cost: 0.00267, tokens: 2054, requests: 2 },
+      },
+      total: { cost: 0.00267, tokens: 2054, requests: 2 }
+    },
+    {
+      date: '2024-05-05',
+      models: {
+        'anthropic/claude-3-opus-20240229': { cost: 0.004356, tokens: 1452, requests: 2 },
+      },
+      total: { cost: 0.004356, tokens: 1452, requests: 2 }
+    },
+    {
+      date: '2024-05-06',
+      models: {},
+      total: { cost: 0, tokens: 0, requests: 0 }
+    },
+    {
+      date: '2024-05-07',
+      models: {
+        'google/gemini-2.0-flash-exp:free': { cost: 0, tokens: 589, requests: 3 },
+      },
+      total: { cost: 0, tokens: 589, requests: 3 }
+    },
+    {
+      date: '2024-05-08',
+      models: {},
+      total: { cost: 0, tokens: 0, requests: 0 }
+    },
+    {
+      date: '2024-05-09',
+      models: {
+        'google/gemini-2.0-flash-exp:free': { cost: 0, tokens: 506, requests: 3 },
+        'openai/gpt-4o-mini': { cost: 0.0000072, tokens: 18, requests: 1 },
+      },
+      total: { cost: 0.0000072, tokens: 524, requests: 4 }
+    },
+    {
+      id: '9',
+      timestamp: '2024-05-07 03:21 PM',
+      provider: 'Google',
+      model: 'gemini-2.0-flash-exp:free',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 76,
+      tokensOutput: 144,
+      totalTokens: 220,
+      cost: 0,
+      speed: 147.5,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-07'
+    },
+  ]);
+
+  // 模拟模型使用汇总
+  const [modelUsage] = useState<ModelUsageSummary[]>([
+    { 
+      model: 'microsoft/wizardlm-2-8x22b', 
+      provider: 'Microsoft', 
+      cost: 0.000627, 
+      tokens: 698, 
+      requests: 1,
+      color: '#1890ff'
+    },
+    { 
+      model: 'gryphe/mythomax-l2-13b', 
+      provider: 'Gryphe', 
+      cost: 0.000082, 
+      tokens: 184, 
+      requests: 1,
+      color: '#13c2c2'
+    },
+    { 
+      model: 'openai/gpt-4o-mini', 
+      provider: 'OpenAI', 
+      cost: 0.0000072, 
+      tokens: 18, 
+      requests: 1,
+      color: '#faad14'
+    },
+    { 
+      model: 'google/gemini-2.0-flash-exp:free', 
+      provider: 'Google', 
+      cost: 0, 
+      tokens: 1095, 
+      requests: 6,
+      color: '#52c41a'
+    },
+    { 
+      model: 'anthropic/claude-3-opus-20240229', 
+      provider: 'Anthropic', 
+      cost: 0.004356, 
+      tokens: 1452, 
+      requests: 2,
+      color: '#eb2f96'
+    },
+    { 
+      model: 'anthropic/claude-3-haiku-20240307', 
+      provider: 'Anthropic', 
+      cost: 0.000477, 
+      tokens: 795, 
+      requests: 2,
+      color: '#722ed1'
+    },
+    { 
+      model: 'openai/gpt-4o', 
+      provider: 'OpenAI', 
+      cost: 0.00267, 
+      tokens: 2054, 
+      requests: 2,
+      color: '#fa8c16'
+    },
+    { 
+      model: 'openai/gpt-4-turbo', 
+      provider: 'OpenAI', 
+      cost: 0.002444, 
+      tokens: 1880, 
+      requests: 2,
+      color: '#fa541c'
+    },
+    { 
+      model: 'mistral/mistral-large-latest', 
+      provider: 'Mistral', 
+      cost: 0.002109, 
+      tokens: 1045, 
+      requests: 2,
+      color: '#391085'
+    },
+    { 
+      model: 'cohere/command-r-plus', 
+      provider: 'Cohere', 
+      cost: 0.001073, 
+      tokens: 631, 
+      requests: 1,
+      color: '#cf1322'
+    }
+  ]);
+
+  // 模拟团队成员使用统计
+  const [membersUsage] = useState<Record<string, UsageSummary>>({
+    'owner@example.com': {
+      spend: {
+        lastDay: '$0.0000072',
+        lastWeek: '$0.008417',
+      },
+      tokens: {
+        lastDay: 506,
+        lastWeek: 4314,
+      },
+      requests: {
+        lastDay: 2,
+        lastWeek: 8,
+      }
+    },
+    'admin@example.com': {
+      spend: {
+        lastDay: '$0',
+        lastWeek: '$0.005331',
+      },
+      tokens: {
+        lastDay: 14,
+        lastWeek: 3690,
+      },
+      requests: {
+        lastDay: 1,
+        lastWeek: 7,
+      }
+    },
+    'member1@example.com': {
+      spend: {
+        lastDay: '$0',
+        lastWeek: '$0.004392',
+      },
+      tokens: {
+        lastDay: 0,
+        lastWeek: 3247,
+      },
+      requests: {
+        lastDay: 0,
+        lastWeek: 6,
+      }
+    },
+  });
+
+  // 模拟使用记录
+  const [usageRecords] = useState<UsageRecord[]>([
+    {
+      id: '1',
+      timestamp: '2024-05-09 02:32 PM',
+      provider: 'Google',
+      model: 'gemini-2.0-flash-exp:free',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 241,
+      tokensOutput: 12,
+      totalTokens: 253,
+      cost: 0,
+      speed: 157.9,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-09'
+    },
+    {
+      id: '2',
+      timestamp: '2024-05-09 02:31 PM',
+      provider: 'Google',
+      model: 'gemini-2.0-flash-exp:free',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 15,
+      tokensOutput: 224,
+      totalTokens: 239,
+      cost: 0,
+      speed: 159.8,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-09'
+    },
+    {
+      id: '3',
+      timestamp: '2024-05-09 02:31 PM',
+      provider: 'Google',
+      model: 'gemini-2.0-flash-exp:free',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 2,
+      tokensOutput: 12,
+      totalTokens: 14,
+      cost: 0,
+      speed: 82.2,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-09'
+    },
+    {
+      id: '4',
+      timestamp: '2024-05-09 10:49 AM',
+      provider: 'OpenAI',
+      model: 'gpt-4o-mini',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 8,
+      tokensOutput: 10,
+      totalTokens: 18,
+      cost: 0.0000072,
+      speed: 95.2,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-09'
+    },
+    {
+      id: '5',
+      timestamp: '2024-04-27 10:03 AM',
+      provider: 'Microsoft',
+      model: 'wizardlm-2-8x22b',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 58,
+      tokensOutput: 640,
+      totalTokens: 698,
+      cost: 0.000627,
+      speed: 38.8,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-04-27'
+    },
+    {
+      id: '6',
+      timestamp: '2024-04-27 10:15 AM',
+      provider: 'Gryphe',
+      model: 'mythomax-l2-13b',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 61,
+      tokensOutput: 123,
+      totalTokens: 184,
+      cost: 0.000082,
+      speed: 71.3,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-04-27'
+    },
+    {
+      id: '7',
+      timestamp: '2024-05-07 11:32 AM',
+      provider: 'Google',
+      model: 'gemini-2.0-flash-exp:free',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 82,
+      tokensOutput: 165,
+      totalTokens: 247,
+      cost: 0,
+      speed: 143.2,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-07'
+    },
+    {
+      id: '8',
+      timestamp: '2024-05-07 11:45 AM',
+      provider: 'Google',
+      model: 'gemini-2.0-flash-exp:free',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 35,
+      tokensOutput: 87,
+      totalTokens: 122,
+      cost: 0,
+      speed: 135.7,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-07'
+    },
+    {
+      id: '9',
+      timestamp: '2024-05-07 03:21 PM',
+      provider: 'Google',
+      model: 'gemini-2.0-flash-exp:free',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 76,
+      tokensOutput: 144,
+      totalTokens: 220,
+      cost: 0,
+      speed: 147.5,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-07'
+    },
+    {
+      id: '10',
+      timestamp: '2024-05-05 09:17 AM',
+      provider: 'Anthropic',
+      model: 'claude-3-opus-20240229',
+      app: 'OpenRouter: API',
+      tokensInput: 182,
+      tokensOutput: 621,
+      totalTokens: 803,
+      cost: 0.002409,
+      speed: 42.3,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-05'
+    },
+    {
+      id: '11',
+      timestamp: '2024-05-05 09:45 AM',
+      provider: 'Anthropic',
+      model: 'claude-3-opus-20240229',
+      app: 'OpenRouter: API',
+      tokensInput: 157,
+      tokensOutput: 492,
+      totalTokens: 649,
+      cost: 0.001947,
+      speed: 44.7,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-05'
+    },
+    {
+      id: '12',
+      timestamp: '2024-05-04 01:37 PM',
+      provider: 'OpenAI',
+      model: 'gpt-4o',
+      app: 'OpenRouter: API',
+      tokensInput: 321,
+      tokensOutput: 746,
+      totalTokens: 1067,
+      cost: 0.001387,
+      speed: 71.2,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-04'
+    },
+    {
+      id: '13',
+      timestamp: '2024-05-04 02:12 PM',
+      provider: 'OpenAI',
+      model: 'gpt-4o',
+      app: 'OpenRouter: API',
+      tokensInput: 135,
+      tokensOutput: 852,
+      totalTokens: 987,
+      cost: 0.001283,
+      speed: 68.9,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-04'
+    },
+    {
+      id: '14',
+      timestamp: '2024-05-03 10:28 AM',
+      provider: 'Mistral',
+      model: 'mistral-large-latest',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 91,
+      tokensOutput: 324,
+      totalTokens: 415,
+      cost: 0.000837,
+      speed: 89.5,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-03'
+    },
+    {
+      id: '15',
+      timestamp: '2024-05-03 11:05 AM',
+      provider: 'Mistral',
+      model: 'mistral-large-latest',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 143,
+      tokensOutput: 487,
+      totalTokens: 630,
+      cost: 0.001272,
+      speed: 91.2,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-03'
+    },
+    {
+      id: '16',
+      timestamp: '2024-05-02 03:45 PM',
+      provider: 'Anthropic',
+      model: 'claude-3-haiku-20240307',
+      app: 'OpenRouter: API',
+      tokensInput: 76,
+      tokensOutput: 218,
+      totalTokens: 294,
+      cost: 0.000176,
+      speed: 112.8,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-02'
+    },
+    {
+      id: '17',
+      timestamp: '2024-05-02 04:21 PM',
+      provider: 'Anthropic',
+      model: 'claude-3-haiku-20240307',
+      app: 'OpenRouter: API',
+      tokensInput: 112,
+      tokensOutput: 389,
+      totalTokens: 501,
+      cost: 0.000301,
+      speed: 124.6,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-02'
+    },
+    {
+      id: '18',
+      timestamp: '2024-05-01 09:32 AM',
+      provider: 'OpenAI',
+      model: 'gpt-4-turbo',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 287,
+      tokensOutput: 825,
+      totalTokens: 1112,
+      cost: 0.001446,
+      speed: 63.7,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-01'
+    },
+    {
+      id: '19',
+      timestamp: '2024-05-01 10:17 AM',
+      provider: 'OpenAI',
+      model: 'gpt-4-turbo',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 176,
+      tokensOutput: 592,
+      totalTokens: 768,
+      cost: 0.000998,
+      speed: 65.3,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-01'
+    },
+    {
+      id: '20',
+      timestamp: '2024-04-30 02:15 PM',
+      provider: 'Cohere',
+      model: 'command-r-plus',
+      app: 'OpenRouter: API',
+      tokensInput: 153,
+      tokensOutput: 478,
+      totalTokens: 631,
+      cost: 0.001073,
+      speed: 96.4,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-04-30'
+    }
+  ]);
 
   // 初始化API密钥的可见性状态
   React.useEffect(() => {
@@ -611,6 +1246,224 @@ const TeamManagement: React.FC = () => {
   const activeMembers = team.members.filter(m => m.status === 'active');
   const pendingMembers = team.members.filter(m => m.status === 'pending');
 
+  // 根据选择的用户和模型筛选使用记录
+  const filteredUsageRecords = usageRecords.filter(record => {
+    // Filter by user/team
+    const userMatch = usageFilter === 'team' || record.user === usageFilter;
+    
+    // Filter by model
+    const modelMatch = modelFilter === 'all' || record.model === modelFilter;
+    
+    // Filter by date range
+    const recordDate = dayjs(record.date);
+    const dateMatch = recordDate.isAfter(dateRange[0], 'day') && 
+                      recordDate.isBefore(dateRange[1], 'day');
+    
+    // Filter by selected day if any
+    const dayMatch = !selectedDay || record.date === selectedDay;
+    
+    return userMatch && modelMatch && dateMatch && dayMatch;
+  });
+
+  // 获取用户显示名称
+  const getUserDisplayName = (email: string) => {
+    const member = team.members.find(m => m.email === email);
+    if (member) {
+      return member.email + (member.isCurrentUser ? ' (You)' : '');
+    }
+    return email;
+  };
+  
+  // 获取使用该模型的用户列表
+  const getModelUsers = (records: UsageRecord[]): string => {
+    const userEmails = Array.from(new Set(records.map(record => record.user)));
+    return userEmails.map(email => {
+      const member = team.members.find(m => m.email === email);
+      return member ? (member.email.split('@')[0] + (member.isCurrentUser ? ' (You)' : '')) : email;
+    }).join(', ');
+  };
+  
+  // 获取当前日期范围内的所有日期
+  const getDatesInRange = (): string[] => {
+    const dates: string[] = [];
+    const startDate = dateRange[0];
+    const endDate = dateRange[1];
+    let currentDate = startDate;
+    
+    while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+      dates.push(currentDate.format('YYYY-MM-DD'));
+      currentDate = currentDate.add(1, 'day');
+    }
+    
+    return dates;
+  };
+  
+  // 获取日期表显格式
+  const formatDate = (dateStr: string): string => {
+    return dayjs(dateStr).format('MMM D');
+  };
+  
+  // 按日期和模型筛选使用记录的图表数据
+  const getChartData = () => {
+    const dates = getDatesInRange();
+    
+    return dates.map(date => {
+      // Filter records for this date and the selected user/team
+      const recordsForDate = usageRecords.filter(record => {
+        return record.date === date && 
+              (usageFilter === 'team' || record.user === usageFilter) &&
+              (modelFilter === 'all' || record.model === modelFilter);
+      });
+      
+      // Group data by model
+      const modelData: Record<string, {cost: number, tokens: number, requests: number}> = {};
+      recordsForDate.forEach(record => {
+        if (!modelData[record.model]) {
+          modelData[record.model] = {cost: 0, tokens: 0, requests: 0};
+        }
+        modelData[record.model].cost += record.cost;
+        modelData[record.model].tokens += record.totalTokens;
+        modelData[record.model].requests += 1;
+      });
+      
+      // Calculate total
+      const total = {
+        cost: Object.values(modelData).reduce((sum, data) => sum + data.cost, 0),
+        tokens: Object.values(modelData).reduce((sum, data) => sum + data.tokens, 0),
+        requests: Object.values(modelData).reduce((sum, data) => sum + data.requests, 0)
+      };
+      
+      return {
+        date,
+        formattedDate: formatDate(date),
+        models: modelData,
+        total
+      };
+    });
+  };
+  
+  // 处理点击柱状图
+  const handleBarClick = (date: string) => {
+    setSelectedDay(selectedDay === date ? null : date);
+  };
+  
+  // 处理点击模型详情
+  const handleModelDetailClick = (modelData: any) => {
+    setSelectedModelData(modelData);
+    setModelDetailVisible(true);
+  };
+  
+  // 处理图表类型切换
+  const handleChartTypeChange = (e: RadioChangeEvent) => {
+    setChartType(e.target.value);
+  };
+
+  // 使用记录表格列定义
+  const usageColumns: ColumnsType<UsageRecord> = [
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          Timestamp
+        </Text>
+      ),
+      dataIndex: 'timestamp',
+      key: 'timestamp',
+      render: (timestamp: string) => (
+        <Text style={{ color: '#ffffff' }}>{timestamp}</Text>
+      ),
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          Provider / Model
+        </Text>
+      ),
+      dataIndex: 'model',
+      key: 'model',
+      render: (model: string, record: UsageRecord) => (
+        <Text style={{ color: '#ffffff' }}>
+          {record.provider} / {model}
+        </Text>
+      ),
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          Used by
+        </Text>
+      ),
+      dataIndex: 'user',
+      key: 'user',
+      render: (user: string) => {
+        const member = team.members.find(m => m.email === user);
+        return (
+          <Space>
+            <Text style={{ color: '#ffffff' }}>
+              {member ? member.email.split('@')[0] : user}
+              {member?.isCurrentUser && <Tag color="blue" style={{ marginLeft: 4 }}>You</Tag>}
+            </Text>
+          </Space>
+        );
+      },
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          Tokens
+        </Text>
+      ),
+      dataIndex: 'totalTokens',
+      key: 'totalTokens',
+      render: (totalTokens: number, record: UsageRecord) => (
+        <Text style={{ color: '#ffffff' }}>
+          {record.tokensInput} → {record.tokensOutput}
+        </Text>
+      ),
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          Cost
+        </Text>
+      ),
+      dataIndex: 'cost',
+      key: 'cost',
+      render: (cost: number) => (
+        <Text style={{ color: '#ffffff' }}>
+          ${cost === 0 ? '0' : cost.toFixed(7)}
+        </Text>
+      ),
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          Speed
+        </Text>
+      ),
+      dataIndex: 'speed',
+      key: 'speed',
+      render: (speed: number) => (
+        <Text style={{ color: '#ffffff' }}>
+          {speed.toFixed(1)} tps
+        </Text>
+      ),
+    },
+    {
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          Finish
+        </Text>
+      ),
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Text style={{ color: '#ffffff' }}>
+          {status}
+        </Text>
+      ),
+    },
+  ];
+
   return (
     <Card style={{ background: '#141414', border: '1px solid #303030' }} className="team-management-card">
       <Space style={{ marginBottom: 16 }}>
@@ -687,6 +1540,279 @@ const TeamManagement: React.FC = () => {
               </div>
             </Space>
           </div>
+        </TabPane>
+        <TabPane
+          tab={
+            <span>
+              <AreaChartOutlined />
+              Usage Analytics
+            </span>
+          }
+          key="usage"
+        >
+          <div className="usage-header" style={{ marginBottom: '24px' }}>
+            <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
+              See how you've been using models on Nebula Block
+              <Tooltip title="Usage statistics for your team's inference requests">
+                <InfoCircleOutlined style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.45)' }} />
+              </Tooltip>
+            </Typography.Title>
+            
+            <div className="usage-filters" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+              <Space>
+                <Text strong style={{ color: '#ffffff' }}>Filter by:</Text>
+                <Select 
+                  value={usageFilter} 
+                  onChange={setUsageFilter}
+                  style={{ width: '200px' }}
+                  dropdownStyle={{ background: '#1f1f1f', borderColor: '#303030' }}
+                >
+                  <Select.Option value="team">Entire Team</Select.Option>
+                  {team.members.map(member => (
+                    <Select.Option key={member.id} value={member.email}>
+                      {member.email} {member.isCurrentUser && '(You)'}
+                    </Select.Option>
+                  ))}
+                </Select>
+                
+                <Text strong style={{ color: '#ffffff', marginLeft: '16px' }}>Model:</Text>
+                <Select 
+                  value={modelFilter} 
+                  onChange={setModelFilter}
+                  style={{ width: '240px' }}
+                  dropdownStyle={{ background: '#1f1f1f', borderColor: '#303030' }}
+                >
+                  <Select.Option value="all">All Models</Select.Option>
+                  {modelUsage.map(model => (
+                    <Select.Option key={model.model} value={model.model}>
+                      {model.provider}/{model.model.split('/').pop()}
+                    </Select.Option>
+                  ))}
+                </Select>
+                
+                <Text strong style={{ color: '#ffffff', marginLeft: '16px' }}>Date Range:</Text>
+                <DatePicker.RangePicker 
+                  value={dateRange}
+                  onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])}
+                  style={{ background: '#1a1a1a', borderColor: '#303030' }}
+                />
+              </Space>
+            </div>
+          </div>
+          
+          <Row gutter={[24, 24]}>
+            <Col xs={24} sm={8}>
+              <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                <Statistic 
+                  title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Spend</Text>} 
+                  value={teamUsageSummary.spend.lastDay} 
+                  valueStyle={{ color: '#ffffff', fontSize: '28px' }}
+                />
+                <div className="stat-footer" style={{ marginTop: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
+                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {teamUsageSummary.spend.lastWeek}</Text>
+                  </div>
+                </div>
+                <div className="stat-chart" style={{ height: '80px', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                    {getChartData().slice(-7).map((day, index) => (
+                      <div 
+                        key={day.date} 
+                        className="day-bar"
+                        style={{
+                          flexGrow: 1,
+                          height: day.total.cost ? `${Math.max(20, day.total.cost * 100000)}px` : '5px',
+                          margin: '0 2px',
+                          backgroundColor: day.date === selectedDay ? '#1890ff' : 'rgba(24, 144, 255, 0.6)',
+                          borderTopLeftRadius: '3px',
+                          borderTopRightRadius: '3px',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => handleBarClick(day.date)}
+                        title={`${day.formattedDate}: $${day.total.cost.toFixed(7)}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                <Statistic 
+                  title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Tokens</Text>} 
+                  value={teamUsageSummary.tokens.lastDay.toLocaleString()} 
+                  valueStyle={{ color: '#ffffff', fontSize: '28px' }}
+                  suffix="K"
+                />
+                <div className="stat-footer" style={{ marginTop: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
+                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {(teamUsageSummary.tokens.lastWeek / 1000000).toFixed(2)}M</Text>
+                  </div>
+                </div>
+                <div className="stat-chart" style={{ height: '80px', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                    {getChartData().slice(-7).map((day, index) => (
+                      <div 
+                        key={day.date} 
+                        className="day-bar"
+                        style={{
+                          flexGrow: 1,
+                          height: day.total.tokens ? `${Math.max(20, (day.total.tokens / 1000) * 80 / 30)}px` : '5px',
+                          margin: '0 2px',
+                          backgroundColor: day.date === selectedDay ? '#faad14' : 'rgba(250, 173, 20, 0.6)',
+                          borderTopLeftRadius: '3px',
+                          borderTopRightRadius: '3px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => handleBarClick(day.date)}
+                        title={`${day.formattedDate}: ${day.total.tokens.toLocaleString()} tokens`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                <Statistic 
+                  title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Requests</Text>} 
+                  value={teamUsageSummary.requests.lastDay} 
+                  valueStyle={{ color: '#ffffff', fontSize: '28px' }}
+                />
+                <div className="stat-footer" style={{ marginTop: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
+                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {teamUsageSummary.requests.lastWeek.toLocaleString()}K</Text>
+                  </div>
+                </div>
+                <div className="stat-chart" style={{ height: '80px', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                    {getChartData().slice(-7).map((day, index) => (
+                      <div 
+                        key={day.date} 
+                        className="day-bar"
+                        style={{
+                          flexGrow: 1,
+                          height: day.total.requests ? `${Math.max(20, day.total.requests * 15)}px` : '5px',
+                          margin: '0 2px',
+                          backgroundColor: day.date === selectedDay ? '#52c41a' : 'rgba(82, 196, 26, 0.6)',
+                          borderTopLeftRadius: '3px',
+                          borderTopRightRadius: '3px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => handleBarClick(day.date)}
+                        title={`${day.formattedDate}: ${day.total.requests} requests`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+          
+          {selectedDay && (
+            <div className="selected-day-details" style={{ marginBottom: '24px' }}>
+              <Card style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
+                  Usage Details for {formatDate(selectedDay)}
+                </Typography.Title>
+                
+                <Row gutter={[24, 24]}>
+                  <Col span={24}>
+                    <div className="model-breakdown">
+                      <Table
+                        columns={[
+                          {
+                            title: 'Model',
+                            dataIndex: 'model',
+                            key: 'model',
+                            render: (_, record: ModelUsageSummary) => (
+                              <Space>
+                                <div style={{ width: 12, height: 12, backgroundColor: record.color, borderRadius: '50%' }} />
+                                <Text style={{ color: '#ffffff' }}>{record.model.split('/').pop()}</Text>
+                              </Space>
+                            )
+                          },
+                          {
+                            title: 'Provider',
+                            dataIndex: 'provider',
+                            key: 'provider',
+                            render: (provider) => <Text style={{ color: '#ffffff' }}>{provider}</Text>
+                          },
+                          {
+                            title: 'Cost',
+                            dataIndex: 'cost',
+                            key: 'cost',
+                            render: (cost) => <Text style={{ color: '#ffffff' }}>${cost.toFixed(7)}</Text>
+                          },
+                          {
+                            title: 'Tokens',
+                            dataIndex: 'tokens',
+                            key: 'tokens',
+                            render: (tokens) => <Text style={{ color: '#ffffff' }}>{tokens.toLocaleString()}</Text>
+                          },
+                          {
+                            title: 'Requests',
+                            dataIndex: 'requests',
+                            key: 'requests',
+                            render: (requests) => <Text style={{ color: '#ffffff' }}>{requests}</Text>
+                          },
+                          {
+                            title: 'Users',
+                            key: 'users',
+                            render: (_, record: ModelUsageSummary) => {
+                              const recordsForModel = filteredUsageRecords.filter(r => r.date === selectedDay && r.model === record.model);
+                              return <Text style={{ color: '#ffffff' }}>{getModelUsers(recordsForModel)}</Text>;
+                            }
+                          },
+                          {
+                            title: 'Actions',
+                            key: 'actions',
+                            render: (_, record: ModelUsageSummary) => (
+                              <Button 
+                                type="link" 
+                                size="small"
+                                onClick={() => handleModelDetailClick({...record, date: selectedDay})}
+                              >
+                                详情
+                              </Button>
+                            )
+                          }
+                        ]}
+                        dataSource={modelUsage.filter(model => {
+                          // Only include models that have data for the selected day
+                          const recordsForDate = usageRecords.filter(r => 
+                            r.date === selectedDay && 
+                            r.model === model.model && 
+                            (usageFilter === 'team' || r.user === usageFilter)
+                          );
+                          return recordsForDate.length > 0;
+                        })}
+                        pagination={false}
+                        rowKey="model"
+                        style={{ background: 'transparent' }}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+            </div>
+          )}
+          
+          <Table
+            columns={usageColumns}
+            dataSource={filteredUsageRecords}
+            rowKey="id"
+            className="usage-table"
+            pagination={{ pageSize: 10 }}
+            style={{ background: '#141414', borderRadius: '8px' }}
+          />
         </TabPane>
         <TabPane
           tab={
@@ -822,6 +1948,15 @@ const TeamManagement: React.FC = () => {
           </Paragraph>
         </Form>
       </Modal>
+
+      {/* 模型使用详情弹窗 */}
+      <ModelUsageDetailModal
+        visible={modelDetailVisible}
+        onClose={() => setModelDetailVisible(false)}
+        modelData={selectedModelData}
+        usageRecords={usageRecords}
+        date={selectedModelData?.date || ''}
+      />
     </Card>
   );
 };
