@@ -22,6 +22,28 @@ const createTestInvitation = () => {
   return invitation.token;
 };
 
+// 创建已过期的测试邀请
+const createExpiredTestInvitation = () => {
+  // 创建邀请
+  const invitation = createInvitation(
+    'team-expired-123',
+    'Expired Test Team',
+    'expired-test@example.com',
+    'member',
+    'admin@example.com'
+  );
+  
+  // 修改过期时间为过去的日期 (昨天)
+  const expiredDate = new Date();
+  expiredDate.setDate(expiredDate.getDate() - 1);
+  invitation.expiresAt = expiredDate;
+  
+  console.log('[TEST] Created expired test invitation:', invitation);
+  console.log('[TEST] Expired date:', expiredDate.toLocaleString());
+  
+  return invitation.token;
+};
+
 const InviteAccept: React.FC = () => {
   const { inviteToken } = useParams<{ inviteToken: string }>();
   const location = useLocation();
@@ -65,6 +87,15 @@ const InviteAccept: React.FC = () => {
           const testToken = createTestInvitation();
           console.log('[InviteAccept] Redirecting to the real test invitation:', testToken);
           navigate(`/invite/${testToken}`, { replace: true });
+          return;
+        }
+        
+        // 测试过期邀请
+        if (inviteToken === 'expired') {
+          console.log('[InviteAccept] Expired test token detected, creating an expired invitation');
+          const expiredToken = createExpiredTestInvitation();
+          console.log('[InviteAccept] Redirecting to the expired test invitation:', expiredToken);
+          navigate(`/invite/${expiredToken}`, { replace: true });
           return;
         }
         
@@ -210,13 +241,19 @@ const InviteAccept: React.FC = () => {
         <Result
           status="error"
           title="Invalid Invitation"
-          subTitle="This invitation link is invalid or has been revoked."
+          subTitle={
+            <div>
+              <p>This invitation link is invalid or has been revoked.</p>
+              <div style={{ marginTop: '16px', background: 'rgba(255, 77, 79, 0.1)', padding: '12px', borderRadius: '4px' }}>
+                <Text style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                  {window.location.href}
+                </Text>
+              </div>
+            </div>
+          }
           extra={[
             <Button type="primary" key="home" onClick={() => navigate('/teams')}>
               Go to Teams
-            </Button>,
-            <Button key="debug" onClick={() => { console.log('All active invitations:'); getActiveInvitations(); }}>
-              Debug Invitations
             </Button>
           ]}
         />
@@ -228,7 +265,30 @@ const InviteAccept: React.FC = () => {
         <Result
           status="warning"
           title="Invitation Expired"
-          subTitle={`This invitation from ${inviteInfo?.invitedBy} to join ${inviteInfo?.teamName} has expired. Please request a new invitation.`}
+          subTitle={
+            <div style={{ textAlign: 'left', maxWidth: '90%', margin: '0 auto' }}>
+              <div style={{ marginBottom: '20px', background: 'rgba(250, 173, 20, 0.15)', padding: '16px', borderRadius: '4px', border: '1px solid rgba(250, 173, 20, 0.3)' }}>
+                <Text strong style={{ color: '#faad14', fontSize: '16px', display: 'block', marginBottom: '8px' }}>
+                  This invitation has expired!
+                </Text>
+                <Text style={{ color: 'rgba(255, 255, 255, 0.85)' }}>
+                  Expired on: <strong>{inviteInfo?.expiresAt.toLocaleString()}</strong>
+                </Text>
+              </div>
+              
+              <div style={{ fontSize: '16px', color: '#ffffff', lineHeight: '1.6', margin: '20px 0' }}>
+                <p style={{ color: '#ffffff' }}>
+                  Please contact the team admin to request a new invitation.
+                </p>
+              </div>
+              
+              <div style={{ marginTop: '20px', background: 'rgba(0, 0, 0, 0.2)', padding: '12px 16px', borderRadius: '4px', overflowX: 'auto' }}>
+                <Text style={{ fontFamily: 'monospace', wordBreak: 'break-all', color: 'rgba(255, 255, 255, 0.75)' }}>
+                  {window.location.href}
+                </Text>
+              </div>
+            </div>
+          }
           extra={[
             <Button type="primary" key="home" onClick={() => navigate('/teams')}>
               Go to Teams
