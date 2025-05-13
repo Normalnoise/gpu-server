@@ -443,12 +443,12 @@ const ServerlessModels: React.FC = () => {
                   <div className="model-detail-item">
                     <Text strong>Context Length:</Text>
                     <Text> {formatContextLength(model.contextLength)}</Text>
-                  </div>
+                    </div>
                   <div className="model-detail-item">
                     <Text strong>Prompt Price:</Text>
                     <Text> {formatPrice(model.promptPrice)}</Text>
                     </div>
-                  {model.completionPrice > 0 && (
+                    {model.completionPrice > 0 && (
                     <div className="model-detail-item">
                       <Text strong>Completion Price:</Text>
                       <Text> {formatPrice(model.completionPrice)}</Text>

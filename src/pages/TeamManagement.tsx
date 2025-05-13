@@ -36,6 +36,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
+import { createInvitation, sendInvitationEmail } from '../services/invitationService';
 
 interface TeamMember {
   id: string;
@@ -749,12 +750,66 @@ const TeamManagement: React.FC = () => {
 
   const handleInviteMember = async (values: { email: string; role: string }) => {
     try {
-      // TODO: 实现邀请成员的API调用
       console.log('Inviting member:', values);
-      message.success('Invitation sent successfully');
+      
+      // Create an invitation using our invitationService
+      const invitation = createInvitation(
+        team.id,
+        team.name,
+        values.email,
+        values.role,
+        team.members.find(m => m.isCurrentUser)?.email || 'current-user@example.com'
+      );
+      
+      // Create the invitation link
+      const inviteLink = `${window.location.origin}/invite/${invitation.token}`;
+      
+      // Simulate sending an email invitation
+      try {
+        await sendInvitationEmail(
+          values.email,
+          inviteLink,
+          team.name,
+          team.members.find(m => m.isCurrentUser)?.email || 'current-user@example.com'
+        );
+      } catch (emailError) {
+        // Handle email sending error, but still show the invite link
+        console.error('Failed to send invitation email:', emailError);
+        message.warning('Could not send invitation email, but the invitation has been created.');
+      }
+      
+      // Show success message with the invitation link
+      Modal.success({
+        title: 'Invitation Sent Successfully',
+        content: (
+          <div>
+            <p>An invitation has been sent to {values.email}</p>
+            <p>They can also use this link to join your team:</p>
+            <Input.TextArea
+              value={inviteLink}
+              readOnly
+              rows={2}
+              style={{ marginTop: 16, marginBottom: 16 }}
+            />
+            <Button
+              type="primary"
+              icon={<CopyOutlined />}
+              onClick={() => {
+                navigator.clipboard.writeText(inviteLink);
+                message.success('Invitation link copied to clipboard');
+              }}
+            >
+              Copy Link
+            </Button>
+          </div>
+        ),
+        okText: 'Done',
+      });
+      
       setInviteModalVisible(false);
       form.resetFields();
     } catch (error) {
+      console.error('Failed to create invitation:', error);
       message.error('Failed to send invitation');
     }
   };
