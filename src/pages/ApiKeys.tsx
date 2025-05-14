@@ -237,7 +237,7 @@ const ApiKeys: React.FC = () => {
       key: 'name',
     },
     {
-      title: 'Owner',
+      title: 'Account Type',
       dataIndex: 'ownerName',
       key: 'ownerName',
       render: (text, record) => (
