@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Tabs, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typography, Divider, Checkbox, Row, Col, DatePicker, Statistic, Tooltip, Radio } from 'antd';
 import ModelUsageDetailModal from '../components/ModelUsageDetailModal';
@@ -170,16 +170,16 @@ const TeamManagement: React.FC = () => {
   // 模拟使用统计数据
   const [teamUsageSummary] = useState<UsageSummary>({
     spend: {
-      lastDay: '$0.579',
-      lastWeek: '$7.97',
+      lastDay: '$1.579',
+      lastWeek: '$18.97',
     },
     tokens: {
-      lastDay: 497000,
-      lastWeek: 3770000,
+      lastDay: 1297000,
+      lastWeek: 12770000,
     },
     requests: {
-      lastDay: 868,
-      lastWeek: 4950,
+      lastDay: 2868,
+      lastWeek: 14950,
     }
   });
 
@@ -190,77 +190,108 @@ const TeamManagement: React.FC = () => {
       models: {
         'microsoft/wizardlm-2-8x22b': { cost: 0.000627, tokens: 698, requests: 1 },
         'gryphe/mythomax-l2-13b': { cost: 0.000082, tokens: 184, requests: 1 },
+        'openai/gpt-4o-mini': { cost: 0.0000135, tokens: 36, requests: 2 },
+        'meta/llama-3-70b-instruct': { cost: 0.000235, tokens: 298, requests: 1 }
       },
-      total: { cost: 0.000709, tokens: 882, requests: 2 }
+      total: { cost: 0.0009575, tokens: 1216, requests: 5 }
     },
     {
       date: '2024-04-28',
-      models: {},
-      total: { cost: 0, tokens: 0, requests: 0 }
+      models: {
+        'openai/gpt-4o': { cost: 0.00172, tokens: 1324, requests: 1 },
+        'anthropic/claude-3-haiku-20240307': { cost: 0.000258, tokens: 430, requests: 1 },
+        'groq/llama-3-70b-8192': { cost: 0.000356, tokens: 624, requests: 1 }
+      },
+      total: { cost: 0.002334, tokens: 2378, requests: 3 }
     },
     {
       date: '2024-04-29',
-      models: {},
-      total: { cost: 0, tokens: 0, requests: 0 }
+      models: {
+        'anthropic/claude-3-opus-20240229': { cost: 0.003254, tokens: 1084, requests: 1 },
+        'mistral/mistral-large-latest': { cost: 0.001023, tokens: 506, requests: 1 },
+        'microsoft/wizardlm-2-8x22b': { cost: 0.000492, tokens: 547, requests: 1 }
+      },
+      total: { cost: 0.004769, tokens: 2137, requests: 3 }
     },
     {
       date: '2024-04-30',
       models: {
         'cohere/command-r-plus': { cost: 0.001073, tokens: 631, requests: 1 },
+        'openai/gpt-4-turbo': { cost: 0.001845, tokens: 1418, requests: 1 },
+        'google/gemini-2.0-flash-exp:free': { cost: 0, tokens: 236, requests: 2 },
+        'anthropic/claude-3-haiku-20240307': { cost: 0.000188, tokens: 312, requests: 1 }
       },
-      total: { cost: 0.001073, tokens: 631, requests: 1 }
+      total: { cost: 0.003106, tokens: 2597, requests: 5 }
     },
     {
       date: '2024-05-01',
       models: {
         'openai/gpt-4-turbo': { cost: 0.002444, tokens: 1880, requests: 2 },
+        'anthropic/claude-3-opus-20240229': { cost: 0.000893, tokens: 297, requests: 1 },
+        'gryphe/mythomax-l2-13b': { cost: 0.000187, tokens: 416, requests: 1 }
       },
-      total: { cost: 0.002444, tokens: 1880, requests: 2 }
+      total: { cost: 0.003524, tokens: 2593, requests: 4 }
     },
     {
       date: '2024-05-02',
       models: {
         'anthropic/claude-3-haiku-20240307': { cost: 0.000477, tokens: 795, requests: 2 },
+        'mistral/mistral-large-latest': { cost: 0.000834, tokens: 412, requests: 1 },
+        'openai/gpt-4o': { cost: 0.000946, tokens: 727, requests: 1 }
       },
-      total: { cost: 0.000477, tokens: 795, requests: 2 }
+      total: { cost: 0.002257, tokens: 1934, requests: 4 }
     },
     {
       date: '2024-05-03',
       models: {
         'mistral/mistral-large-latest': { cost: 0.002109, tokens: 1045, requests: 2 },
+        'cohere/command-r-plus': { cost: 0.000867, tokens: 509, requests: 1 },
+        'openai/gpt-4o-mini': { cost: 0.000092, tokens: 232, requests: 1 }
       },
-      total: { cost: 0.002109, tokens: 1045, requests: 2 }
+      total: { cost: 0.003068, tokens: 1786, requests: 4 }
     },
     {
       date: '2024-05-04',
       models: {
         'openai/gpt-4o': { cost: 0.00267, tokens: 2054, requests: 2 },
+        'meta/llama-3-70b-instruct': { cost: 0.000397, tokens: 352, requests: 1 },
+        'groq/llama-3-70b-8192': { cost: 0.000215, tokens: 242, requests: 1 }
       },
-      total: { cost: 0.00267, tokens: 2054, requests: 2 }
+      total: { cost: 0.003282, tokens: 2648, requests: 4 }
     },
     {
       date: '2024-05-05',
       models: {
         'anthropic/claude-3-opus-20240229': { cost: 0.004356, tokens: 1452, requests: 2 },
+        'openai/gpt-4-turbo': { cost: 0.001327, tokens: 1021, requests: 1 },
+        'gryphe/mythomax-l2-13b': { cost: 0.000201, tokens: 449, requests: 1 }
       },
-      total: { cost: 0.004356, tokens: 1452, requests: 2 }
+      total: { cost: 0.005884, tokens: 2922, requests: 4 }
     },
     {
       date: '2024-05-06',
-      models: {},
-      total: { cost: 0, tokens: 0, requests: 0 }
+      models: {
+        'microsoft/wizardlm-2-8x22b': { cost: 0.000815, tokens: 907, requests: 1 },
+        'openai/gpt-4o-mini': { cost: 0.000098, tokens: 245, requests: 1 }
+      },
+      total: { cost: 0.000913, tokens: 1152, requests: 2 }
     },
     {
       date: '2024-05-07',
       models: {
         'google/gemini-2.0-flash-exp:free': { cost: 0, tokens: 589, requests: 3 },
+        'cohere/command-r-plus': { cost: 0.000927, tokens: 544, requests: 1 },
+        'anthropic/claude-3-haiku-20240307': { cost: 0.000274, tokens: 458, requests: 1 }
       },
-      total: { cost: 0, tokens: 589, requests: 3 }
+      total: { cost: 0.001201, tokens: 1591, requests: 5 }
     },
     {
       date: '2024-05-08',
-      models: {},
-      total: { cost: 0, tokens: 0, requests: 0 }
+      models: {
+        'openai/gpt-4o': { cost: 0.001358, tokens: 1045, requests: 1 },
+        'meta/llama-3-70b-instruct': { cost: 0.000472, tokens: 419, requests: 1 }
+      },
+      total: { cost: 0.00183, tokens: 1464, requests: 2 }
     },
     {
       date: '2024-05-09',
@@ -269,22 +300,7 @@ const TeamManagement: React.FC = () => {
         'openai/gpt-4o-mini': { cost: 0.0000072, tokens: 18, requests: 1 },
       },
       total: { cost: 0.0000072, tokens: 524, requests: 4 }
-    },
-    {
-      id: '9',
-      timestamp: '2024-05-07 03:21 PM',
-      provider: 'Google',
-      model: 'gemini-2.0-flash-exp:free',
-      app: 'OpenRouter: Chatroom',
-      tokensInput: 76,
-      tokensOutput: 144,
-      totalTokens: 220,
-      cost: 0,
-      speed: 147.5,
-      status: 'stop',
-      user: 'member1@example.com',
-      date: '2024-05-07'
-    },
+    }
   ]);
 
   // 模拟模型使用汇总
@@ -292,82 +308,98 @@ const TeamManagement: React.FC = () => {
     { 
       model: 'microsoft/wizardlm-2-8x22b', 
       provider: 'Microsoft', 
-      cost: 0.000627, 
-      tokens: 698, 
-      requests: 1,
-      color: '#1890ff'
+      cost: 0.004127, 
+      tokens: 4596, 
+      requests: 7,
+      color: '#4285F4'
     },
     { 
       model: 'gryphe/mythomax-l2-13b', 
       provider: 'Gryphe', 
-      cost: 0.000082, 
-      tokens: 184, 
-      requests: 1,
-      color: '#13c2c2'
+      cost: 0.000752, 
+      tokens: 1675, 
+      requests: 5,
+      color: '#34A853'
     },
     { 
       model: 'openai/gpt-4o-mini', 
       provider: 'OpenAI', 
-      cost: 0.0000072, 
-      tokens: 18, 
-      requests: 1,
-      color: '#faad14'
+      cost: 0.000386, 
+      tokens: 812, 
+      requests: 9,
+      color: '#10B981'
     },
     { 
       model: 'google/gemini-2.0-flash-exp:free', 
       provider: 'Google', 
       cost: 0, 
-      tokens: 1095, 
-      requests: 6,
-      color: '#52c41a'
+      tokens: 4982, 
+      requests: 18,
+      color: '#FBBC05'
     },
     { 
       model: 'anthropic/claude-3-opus-20240229', 
       provider: 'Anthropic', 
-      cost: 0.004356, 
-      tokens: 1452, 
-      requests: 2,
-      color: '#eb2f96'
+      cost: 0.012458, 
+      tokens: 4152, 
+      requests: 8,
+      color: '#9B59B6'
     },
     { 
       model: 'anthropic/claude-3-haiku-20240307', 
       provider: 'Anthropic', 
-      cost: 0.000477, 
-      tokens: 795, 
-      requests: 2,
-      color: '#722ed1'
+      cost: 0.003275, 
+      tokens: 5462, 
+      requests: 11,
+      color: '#8E44AD'
     },
     { 
       model: 'openai/gpt-4o', 
       provider: 'OpenAI', 
-      cost: 0.00267, 
-      tokens: 2054, 
-      requests: 2,
-      color: '#fa8c16'
+      cost: 0.009864, 
+      tokens: 7592, 
+      requests: 8,
+      color: '#0EA5E9'
     },
     { 
       model: 'openai/gpt-4-turbo', 
       provider: 'OpenAI', 
-      cost: 0.002444, 
-      tokens: 1880, 
-      requests: 2,
-      color: '#fa541c'
+      cost: 0.007952, 
+      tokens: 6114, 
+      requests: 6,
+      color: '#0D9488'
     },
     { 
       model: 'mistral/mistral-large-latest', 
       provider: 'Mistral', 
-      cost: 0.002109, 
-      tokens: 1045, 
-      requests: 2,
-      color: '#391085'
+      cost: 0.008316, 
+      tokens: 4123, 
+      requests: 9,
+      color: '#6366F1'
     },
     { 
       model: 'cohere/command-r-plus', 
       provider: 'Cohere', 
-      cost: 0.001073, 
-      tokens: 631, 
-      requests: 1,
-      color: '#cf1322'
+      cost: 0.005218, 
+      tokens: 3067, 
+      requests: 6,
+      color: '#EC4899'
+    },
+    { 
+      model: 'meta/llama-3-70b-instruct', 
+      provider: 'Meta', 
+      cost: 0.002865, 
+      tokens: 2548, 
+      requests: 7,
+      color: '#3B82F6'
+    },
+    { 
+      model: 'groq/llama-3-70b-8192', 
+      provider: 'Groq', 
+      cost: 0.001756, 
+      tokens: 1982, 
+      requests: 4,
+      color: '#9254de'
     }
   ]);
 
@@ -419,15 +451,61 @@ const TeamManagement: React.FC = () => {
 
   // 模拟使用记录
   const [usageRecords] = useState<UsageRecord[]>([
+    // Today's records (May 9)
+    {
+      id: '101',
+      timestamp: '2024-05-09 17:45 PM',
+      provider: 'Meta',
+      model: 'meta/llama-3-70b-instruct',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 312,
+      tokensOutput: 876,
+      totalTokens: 1188,
+      cost: 0.000953,
+      speed: 152.6,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-09'
+    },
+    {
+      id: '102',
+      timestamp: '2024-05-09 16:12 PM',
+      provider: 'Groq',
+      model: 'groq/llama-3-70b-8192',
+      app: 'OpenRouter: API',
+      tokensInput: 145,
+      tokensOutput: 573,
+      totalTokens: 718,
+      cost: 0.000639,
+      speed: 264.8,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-09'
+    },
+    {
+      id: '103',
+      timestamp: '2024-05-09 14:38 PM',
+      provider: 'Anthropic',
+      model: 'anthropic/claude-3-haiku-20240307',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 201,
+      tokensOutput: 754,
+      totalTokens: 955,
+      cost: 0.000573,
+      speed: 138.7,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-09'
+    },
     {
       id: '1',
       timestamp: '2024-05-09 02:32 PM',
       provider: 'Google',
-      model: 'gemini-2.0-flash-exp:free',
+      model: 'google/gemini-2.0-flash-exp:free',
       app: 'OpenRouter: Chatroom',
       tokensInput: 241,
-      tokensOutput: 12,
-      totalTokens: 253,
+      tokensOutput: 612,
+      totalTokens: 853,
       cost: 0,
       speed: 157.9,
       status: 'stop',
@@ -438,11 +516,11 @@ const TeamManagement: React.FC = () => {
       id: '2',
       timestamp: '2024-05-09 02:31 PM',
       provider: 'Google',
-      model: 'gemini-2.0-flash-exp:free',
+      model: 'google/gemini-2.0-flash-exp:free',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 15,
-      tokensOutput: 224,
-      totalTokens: 239,
+      tokensInput: 115,
+      tokensOutput: 424,
+      totalTokens: 539,
       cost: 0,
       speed: 159.8,
       status: 'stop',
@@ -453,13 +531,13 @@ const TeamManagement: React.FC = () => {
       id: '3',
       timestamp: '2024-05-09 02:31 PM',
       provider: 'Google',
-      model: 'gemini-2.0-flash-exp:free',
+      model: 'google/gemini-2.0-flash-exp:free',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 2,
-      tokensOutput: 12,
-      totalTokens: 14,
+      tokensInput: 42,
+      tokensOutput: 212,
+      totalTokens: 254,
       cost: 0,
-      speed: 82.2,
+      speed: 152.2,
       status: 'stop',
       user: 'admin@example.com',
       date: '2024-05-09'
@@ -468,56 +546,75 @@ const TeamManagement: React.FC = () => {
       id: '4',
       timestamp: '2024-05-09 10:49 AM',
       provider: 'OpenAI',
-      model: 'gpt-4o-mini',
+      model: 'openai/gpt-4o-mini',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 8,
-      tokensOutput: 10,
-      totalTokens: 18,
-      cost: 0.0000072,
+      tokensInput: 98,
+      tokensOutput: 210,
+      totalTokens: 308,
+      cost: 0.000124,
       speed: 95.2,
       status: 'stop',
       user: 'admin@example.com',
       date: '2024-05-09'
     },
+    
+    // May 8 records
     {
-      id: '5',
-      timestamp: '2024-04-27 10:03 AM',
-      provider: 'Microsoft',
-      model: 'wizardlm-2-8x22b',
-      app: 'OpenRouter: Chatroom',
-      tokensInput: 58,
-      tokensOutput: 640,
-      totalTokens: 698,
-      cost: 0.000627,
-      speed: 38.8,
+      id: '201',
+      timestamp: '2024-05-08 18:47 PM',
+      provider: 'OpenAI',
+      model: 'openai/gpt-4o',
+      app: 'OpenRouter: API',
+      tokensInput: 267,
+      tokensOutput: 935,
+      totalTokens: 1202,
+      cost: 0.001564,
+      speed: 87.3,
       status: 'stop',
       user: 'owner@example.com',
-      date: '2024-04-27'
+      date: '2024-05-08'
     },
     {
-      id: '6',
-      timestamp: '2024-04-27 10:15 AM',
-      provider: 'Gryphe',
-      model: 'mythomax-l2-13b',
+      id: '202',
+      timestamp: '2024-05-08 15:23 PM',
+      provider: 'Anthropic',
+      model: 'anthropic/claude-3-haiku-20240307',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 61,
-      tokensOutput: 123,
-      totalTokens: 184,
-      cost: 0.000082,
-      speed: 71.3,
+      tokensInput: 157,
+      tokensOutput: 532,
+      totalTokens: 689,
+      cost: 0.000414,
+      speed: 142.8,
       status: 'stop',
-      user: 'owner@example.com',
-      date: '2024-04-27'
+      user: 'member1@example.com',
+      date: '2024-05-08'
+    },
+    
+    // May 7 records
+    {
+      id: '301',
+      timestamp: '2024-05-07 19:32 PM',
+      provider: 'Meta',
+      model: 'meta/llama-3-70b-instruct',
+      app: 'OpenRouter: API',
+      tokensInput: 178,
+      tokensOutput: 724,
+      totalTokens: 902,
+      cost: 0.000723,
+      speed: 151.8,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-07'
     },
     {
       id: '7',
       timestamp: '2024-05-07 11:32 AM',
       provider: 'Google',
-      model: 'gemini-2.0-flash-exp:free',
+      model: 'google/gemini-2.0-flash-exp:free',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 82,
-      tokensOutput: 165,
-      totalTokens: 247,
+      tokensInput: 182,
+      tokensOutput: 465,
+      totalTokens: 647,
       cost: 0,
       speed: 143.2,
       status: 'stop',
@@ -528,11 +625,11 @@ const TeamManagement: React.FC = () => {
       id: '8',
       timestamp: '2024-05-07 11:45 AM',
       provider: 'Google',
-      model: 'gemini-2.0-flash-exp:free',
+      model: 'google/gemini-2.0-flash-exp:free',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 35,
-      tokensOutput: 87,
-      totalTokens: 122,
+      tokensInput: 135,
+      tokensOutput: 387,
+      totalTokens: 522,
       cost: 0,
       speed: 135.7,
       status: 'stop',
@@ -543,27 +640,61 @@ const TeamManagement: React.FC = () => {
       id: '9',
       timestamp: '2024-05-07 03:21 PM',
       provider: 'Google',
-      model: 'gemini-2.0-flash-exp:free',
+      model: 'google/gemini-2.0-flash-exp:free',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 76,
-      tokensOutput: 144,
-      totalTokens: 220,
+      tokensInput: 176,
+      tokensOutput: 544,
+      totalTokens: 720,
       cost: 0,
       speed: 147.5,
       status: 'stop',
       user: 'member1@example.com',
       date: '2024-05-07'
     },
+    
+    // May 6 records
+    {
+      id: '401',
+      timestamp: '2024-05-06 14:16 PM',
+      provider: 'Mistral',
+      model: 'mistral/mistral-large-latest',
+      app: 'OpenRouter: API',
+      tokensInput: 183,
+      tokensOutput: 556,
+      totalTokens: 739,
+      cost: 0.001493,
+      speed: 96.7,
+      status: 'stop',
+      user: 'admin@example.com',
+      date: '2024-05-06'
+    },
+    {
+      id: '402',
+      timestamp: '2024-05-06 10:50 AM',
+      provider: 'OpenAI',
+      model: 'openai/gpt-4-turbo',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 251,
+      tokensOutput: 878,
+      totalTokens: 1129,
+      cost: 0.001468,
+      speed: 65.9,
+      status: 'stop',
+      user: 'owner@example.com',
+      date: '2024-05-06'
+    },
+    
+    // May 5 records
     {
       id: '10',
       timestamp: '2024-05-05 09:17 AM',
       provider: 'Anthropic',
-      model: 'claude-3-opus-20240229',
+      model: 'anthropic/claude-3-opus-20240229',
       app: 'OpenRouter: API',
-      tokensInput: 182,
-      tokensOutput: 621,
-      totalTokens: 803,
-      cost: 0.002409,
+      tokensInput: 282,
+      tokensOutput: 921,
+      totalTokens: 1203,
+      cost: 0.003609,
       speed: 42.3,
       status: 'stop',
       user: 'owner@example.com',
@@ -573,27 +704,44 @@ const TeamManagement: React.FC = () => {
       id: '11',
       timestamp: '2024-05-05 09:45 AM',
       provider: 'Anthropic',
-      model: 'claude-3-opus-20240229',
+      model: 'anthropic/claude-3-opus-20240229',
       app: 'OpenRouter: API',
-      tokensInput: 157,
-      tokensOutput: 492,
-      totalTokens: 649,
-      cost: 0.001947,
+      tokensInput: 257,
+      tokensOutput: 792,
+      totalTokens: 1049,
+      cost: 0.003147,
       speed: 44.7,
       status: 'stop',
       user: 'owner@example.com',
       date: '2024-05-05'
     },
     {
+      id: '501',
+      timestamp: '2024-05-05 15:07 PM',
+      provider: 'Cohere',
+      model: 'cohere/command-r-plus',
+      app: 'OpenRouter: API',
+      tokensInput: 166,
+      tokensOutput: 523,
+      totalTokens: 689,
+      cost: 0.001172,
+      speed: 98.2,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-05'
+    },
+    
+    // May 4 records
+    {
       id: '12',
       timestamp: '2024-05-04 01:37 PM',
       provider: 'OpenAI',
-      model: 'gpt-4o',
+      model: 'openai/gpt-4o',
       app: 'OpenRouter: API',
       tokensInput: 321,
-      tokensOutput: 746,
-      totalTokens: 1067,
-      cost: 0.001387,
+      tokensOutput: 946,
+      totalTokens: 1267,
+      cost: 0.001647,
       speed: 71.2,
       status: 'stop',
       user: 'admin@example.com',
@@ -603,27 +751,44 @@ const TeamManagement: React.FC = () => {
       id: '13',
       timestamp: '2024-05-04 02:12 PM',
       provider: 'OpenAI',
-      model: 'gpt-4o',
+      model: 'openai/gpt-4o',
       app: 'OpenRouter: API',
-      tokensInput: 135,
-      tokensOutput: 852,
-      totalTokens: 987,
-      cost: 0.001283,
+      tokensInput: 235,
+      tokensOutput: 952,
+      totalTokens: 1187,
+      cost: 0.001543,
       speed: 68.9,
       status: 'stop',
       user: 'admin@example.com',
       date: '2024-05-04'
     },
     {
+      id: '601',
+      timestamp: '2024-05-04 11:24 AM',
+      provider: 'Microsoft',
+      model: 'microsoft/wizardlm-2-8x22b',
+      app: 'OpenRouter: Chatroom',
+      tokensInput: 187,
+      tokensOutput: 734,
+      totalTokens: 921,
+      cost: 0.000829,
+      speed: 41.6,
+      status: 'stop',
+      user: 'member1@example.com',
+      date: '2024-05-04'
+    },
+    
+    // Other days' records
+    {
       id: '14',
       timestamp: '2024-05-03 10:28 AM',
       provider: 'Mistral',
-      model: 'mistral-large-latest',
+      model: 'mistral/mistral-large-latest',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 91,
-      tokensOutput: 324,
-      totalTokens: 415,
-      cost: 0.000837,
+      tokensInput: 191,
+      tokensOutput: 624,
+      totalTokens: 815,
+      cost: 0.001647,
       speed: 89.5,
       status: 'stop',
       user: 'member1@example.com',
@@ -633,12 +798,12 @@ const TeamManagement: React.FC = () => {
       id: '15',
       timestamp: '2024-05-03 11:05 AM',
       provider: 'Mistral',
-      model: 'mistral-large-latest',
+      model: 'mistral/mistral-large-latest',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 143,
-      tokensOutput: 487,
-      totalTokens: 630,
-      cost: 0.001272,
+      tokensInput: 243,
+      tokensOutput: 787,
+      totalTokens: 1030,
+      cost: 0.002081,
       speed: 91.2,
       status: 'stop',
       user: 'member1@example.com',
@@ -648,12 +813,12 @@ const TeamManagement: React.FC = () => {
       id: '16',
       timestamp: '2024-05-02 03:45 PM',
       provider: 'Anthropic',
-      model: 'claude-3-haiku-20240307',
+      model: 'anthropic/claude-3-haiku-20240307',
       app: 'OpenRouter: API',
-      tokensInput: 76,
-      tokensOutput: 218,
-      totalTokens: 294,
-      cost: 0.000176,
+      tokensInput: 176,
+      tokensOutput: 518,
+      totalTokens: 694,
+      cost: 0.000416,
       speed: 112.8,
       status: 'stop',
       user: 'owner@example.com',
@@ -663,12 +828,12 @@ const TeamManagement: React.FC = () => {
       id: '17',
       timestamp: '2024-05-02 04:21 PM',
       provider: 'Anthropic',
-      model: 'claude-3-haiku-20240307',
+      model: 'anthropic/claude-3-haiku-20240307',
       app: 'OpenRouter: API',
-      tokensInput: 112,
-      tokensOutput: 389,
-      totalTokens: 501,
-      cost: 0.000301,
+      tokensInput: 212,
+      tokensOutput: 689,
+      totalTokens: 901,
+      cost: 0.000541,
       speed: 124.6,
       status: 'stop',
       user: 'admin@example.com',
@@ -678,7 +843,7 @@ const TeamManagement: React.FC = () => {
       id: '18',
       timestamp: '2024-05-01 09:32 AM',
       provider: 'OpenAI',
-      model: 'gpt-4-turbo',
+      model: 'openai/gpt-4-turbo',
       app: 'OpenRouter: Chatroom',
       tokensInput: 287,
       tokensOutput: 825,
@@ -693,12 +858,12 @@ const TeamManagement: React.FC = () => {
       id: '19',
       timestamp: '2024-05-01 10:17 AM',
       provider: 'OpenAI',
-      model: 'gpt-4-turbo',
+      model: 'openai/gpt-4-turbo',
       app: 'OpenRouter: Chatroom',
-      tokensInput: 176,
-      tokensOutput: 592,
-      totalTokens: 768,
-      cost: 0.000998,
+      tokensInput: 276,
+      tokensOutput: 892,
+      totalTokens: 1168,
+      cost: 0.001518,
       speed: 65.3,
       status: 'stop',
       user: 'owner@example.com',
@@ -708,12 +873,12 @@ const TeamManagement: React.FC = () => {
       id: '20',
       timestamp: '2024-04-30 02:15 PM',
       provider: 'Cohere',
-      model: 'command-r-plus',
+      model: 'cohere/command-r-plus',
       app: 'OpenRouter: API',
-      tokensInput: 153,
-      tokensOutput: 478,
-      totalTokens: 631,
-      cost: 0.001073,
+      tokensInput: 253,
+      tokensOutput: 678,
+      totalTokens: 931,
+      cost: 0.001582,
       speed: 96.4,
       status: 'stop',
       user: 'admin@example.com',
@@ -1301,24 +1466,21 @@ const TeamManagement: React.FC = () => {
   const activeMembers = team.members.filter(m => m.status === 'active');
   const pendingMembers = team.members.filter(m => m.status === 'pending');
 
-  // 根据选择的用户和模型筛选使用记录
-  const filteredUsageRecords = usageRecords.filter(record => {
-    // Filter by user/team
-    const userMatch = usageFilter === 'team' || record.user === usageFilter;
-    
-    // Filter by model
-    const modelMatch = modelFilter === 'all' || record.model === modelFilter;
-    
-    // Filter by date range
-    const recordDate = dayjs(record.date);
-    const dateMatch = recordDate.isAfter(dateRange[0], 'day') && 
-                      recordDate.isBefore(dateRange[1], 'day');
-    
-    // Filter by selected day if any
-    const dayMatch = !selectedDay || record.date === selectedDay;
-    
-    return userMatch && modelMatch && dateMatch && dayMatch;
-  });
+  // 按筛选条件过滤使用记录
+  const filteredUsageRecords = useMemo(() => {
+    return usageRecords.filter(record => {
+      const recordDate = record.date;
+      const startDate = dateRange[0].format('YYYY-MM-DD');
+      const endDate = dateRange[1].format('YYYY-MM-DD');
+      
+      return (
+        (usageFilter === 'team' || record.user === usageFilter) &&
+        (modelFilter === 'all' || record.model === modelFilter) &&
+        recordDate >= startDate && 
+        recordDate <= endDate
+      );
+    });
+  }, [usageRecords, usageFilter, modelFilter, dateRange]);
 
   // 获取用户显示名称
   const getUserDisplayName = (email: string) => {
@@ -1363,36 +1525,31 @@ const TeamManagement: React.FC = () => {
     const dates = getDatesInRange();
     
     return dates.map(date => {
-      // Filter records for this date and the selected user/team
-      const recordsForDate = usageRecords.filter(record => {
-        return record.date === date && 
-              (usageFilter === 'team' || record.user === usageFilter) &&
-              (modelFilter === 'all' || record.model === modelFilter);
-      });
-      
-      // Group data by model
-      const modelData: Record<string, {cost: number, tokens: number, requests: number}> = {};
-      recordsForDate.forEach(record => {
-        if (!modelData[record.model]) {
-          modelData[record.model] = {cost: 0, tokens: 0, requests: 0};
-        }
-        modelData[record.model].cost += record.cost;
-        modelData[record.model].tokens += record.totalTokens;
-        modelData[record.model].requests += 1;
-      });
-      
-      // Calculate total
-      const total = {
-        cost: Object.values(modelData).reduce((sum, data) => sum + data.cost, 0),
-        tokens: Object.values(modelData).reduce((sum, data) => sum + data.tokens, 0),
-        requests: Object.values(modelData).reduce((sum, data) => sum + data.requests, 0)
+      // Get the daily usage data directly from our mock data
+      const dailyData = dailyUsage.find(d => d.date === date) || {
+        date,
+        models: {},
+        total: { cost: 0, tokens: 0, requests: 0 }
       };
+      
+      // Convert model data to array for chart display
+      const modelDataArray = Object.entries(dailyData.models).map(([modelId, data]) => {
+        const model = modelUsage.find(m => m.model === modelId);
+        return {
+          model: modelId,
+          cost: data.cost,
+          tokens: data.tokens,
+          requests: data.requests,
+          color: model?.color || '#1890ff'
+        };
+      });
       
       return {
         date,
         formattedDate: formatDate(date),
-        models: modelData,
-        total
+        models: dailyData.models,
+        modelDataArray,
+        total: dailyData.total
       };
     });
   };
@@ -1418,46 +1575,58 @@ const TeamManagement: React.FC = () => {
     {
       title: () => (
         <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
-          Timestamp
+          Date
         </Text>
       ),
       dataIndex: 'timestamp',
       key: 'timestamp',
       render: (timestamp: string) => (
-        <Text style={{ color: '#ffffff' }}>{timestamp}</Text>
+        <Text style={{ color: '#ffffff' }}>{timestamp.split(' ')[0]}</Text>
       ),
     },
     {
       title: () => (
         <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
-          Provider / Model
+          Model
         </Text>
       ),
       dataIndex: 'model',
       key: 'model',
       render: (model: string, record: UsageRecord) => (
         <Text style={{ color: '#ffffff' }}>
-          {record.provider} / {model}
+          {model}
         </Text>
       ),
     },
     {
       title: () => (
         <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
-          Used by
+          Users
         </Text>
       ),
       dataIndex: 'user',
       key: 'user',
-      render: (user: string) => {
-        const member = team.members.find(m => m.email === user);
+      render: (user: string, record: UsageRecord) => {
+        // Get all records for this model on this date
+        const relatedRecords = usageRecords.filter(
+          r => r.model === record.model && r.date === record.date
+        );
+        
+        // Get unique users from those records
+        const uniqueUsers = Array.from(new Set(relatedRecords.map(r => r.user)));
+        
         return (
-          <Space>
-            <Text style={{ color: '#ffffff' }}>
-              {member ? member.email.split('@')[0] : user}
-              {member?.isCurrentUser && <Tag color="blue" style={{ marginLeft: 4 }}>You</Tag>}
-            </Text>
-          </Space>
+          <div>
+            {uniqueUsers.map((email, index) => {
+              const member = team.members.find(m => m.email === email);
+              return (
+                <Text key={email} style={{ color: '#ffffff', display: 'block', marginBottom: index < uniqueUsers.length - 1 ? '4px' : 0 }}>
+                  {member ? member.email.split('@')[0] : email}
+                  {member?.isCurrentUser && <Tag color="blue" style={{ marginLeft: 4 }}>You</Tag>}
+                </Text>
+              );
+            })}
+          </div>
         );
       },
     },
@@ -1613,12 +1782,25 @@ const TeamManagement: React.FC = () => {
               </Tooltip>
             </Typography.Title>
             
-            <div className="usage-filters" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-              <Space>
+            <div style={{ marginBottom: '24px' }}>
+              <Space wrap style={{ marginBottom: '16px' }}>
                 <Text strong style={{ color: '#ffffff' }}>Filter by:</Text>
                 <Select 
                   value={usageFilter} 
-                  onChange={setUsageFilter}
+                  onChange={(value) => {
+                    setUsageFilter(value);
+                    // If "Entire Team" is selected, set date range to display all data
+                    if (value === 'team') {
+                      const allDates = dailyUsage.map(d => d.date).sort();
+                      if (allDates.length > 0) {
+                        setDateRange([
+                          dayjs(allDates[0]),
+                          dayjs(allDates[allDates.length - 1])
+                        ]);
+                      }
+                      setModelFilter('all');
+                    }
+                  }}
                   style={{ width: '200px' }}
                   dropdownStyle={{ background: '#1f1f1f', borderColor: '#303030' }}
                 >
@@ -1629,391 +1811,576 @@ const TeamManagement: React.FC = () => {
                     </Select.Option>
                   ))}
                 </Select>
-                
-                <Text strong style={{ color: '#ffffff', marginLeft: '16px' }}>Model:</Text>
-                <Select 
-                  value={modelFilter} 
-                  onChange={setModelFilter}
-                  style={{ width: '240px' }}
-                  dropdownStyle={{ background: '#1f1f1f', borderColor: '#303030' }}
-                >
-                  <Select.Option value="all">All Models</Select.Option>
-                  {modelUsage.map(model => (
-                    <Select.Option key={model.model} value={model.model}>
-                      {model.provider}/{model.model.split('/').pop()}
-                    </Select.Option>
-                  ))}
-                </Select>
-                
-                <Text strong style={{ color: '#ffffff', marginLeft: '16px' }}>Date Range:</Text>
-                <DatePicker.RangePicker 
-                  value={dateRange}
-                  onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])}
-                  style={{ background: '#1a1a1a', borderColor: '#303030' }}
-                />
               </Space>
             </div>
-          </div>
-          
-          <Row gutter={[24, 24]}>
-            <Col xs={24} sm={8}>
-              <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
-                <Statistic 
-                  title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Spend</Text>} 
-                  value={teamUsageSummary.spend.lastDay} 
-                  valueStyle={{ color: '#ffffff', fontSize: '28px' }}
-                />
-                <div className="stat-footer" style={{ marginTop: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
-                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {teamUsageSummary.spend.lastWeek}</Text>
-                  </div>
-                </div>
-                <div className="stat-chart" style={{ height: '80px', marginTop: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
-                    {getChartData().slice(-7).map((day, index) => (
-                      <div 
-                        key={day.date} 
-                        className="day-bar"
-                        style={{
-                          flexGrow: 1,
-                          height: day.total.cost ? `${Math.max(20, day.total.cost * 100000)}px` : '5px',
-                          margin: '0 2px',
-                          backgroundColor: day.date === selectedDay ? '#1890ff' : 'rgba(24, 144, 255, 0.6)',
-                          borderTopLeftRadius: '3px',
-                          borderTopRightRadius: '3px',
-                          cursor: 'pointer',
-                          position: 'relative',
-                          transition: 'all 0.3s ease'
-                        }}
-                        onClick={() => handleBarClick(day.date)}
-                        title={`${day.formattedDate}: $${day.total.cost.toFixed(7)}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
-                <Statistic 
-                  title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Tokens</Text>} 
-                  value={teamUsageSummary.tokens.lastDay.toLocaleString()} 
-                  valueStyle={{ color: '#ffffff', fontSize: '28px' }}
-                  suffix="K"
-                />
-                <div className="stat-footer" style={{ marginTop: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
-                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {(teamUsageSummary.tokens.lastWeek / 1000000).toFixed(2)}M</Text>
-                  </div>
-                </div>
-                <div className="stat-chart" style={{ height: '80px', marginTop: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
-                    {getChartData().slice(-7).map((day, index) => (
-                      <div 
-                        key={day.date} 
-                        className="day-bar"
-                        style={{
-                          flexGrow: 1,
-                          height: day.total.tokens ? `${Math.max(20, (day.total.tokens / 1000) * 80 / 30)}px` : '5px',
-                          margin: '0 2px',
-                          backgroundColor: day.date === selectedDay ? '#faad14' : 'rgba(250, 173, 20, 0.6)',
-                          borderTopLeftRadius: '3px',
-                          borderTopRightRadius: '3px',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease'
-                        }}
-                        onClick={() => handleBarClick(day.date)}
-                        title={`${day.formattedDate}: ${day.total.tokens.toLocaleString()} tokens`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
-                <Statistic 
-                  title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Requests</Text>} 
-                  value={teamUsageSummary.requests.lastDay} 
-                  valueStyle={{ color: '#ffffff', fontSize: '28px' }}
-                />
-                <div className="stat-footer" style={{ marginTop: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
-                    <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {teamUsageSummary.requests.lastWeek.toLocaleString()}K</Text>
-                  </div>
-                </div>
-                <div className="stat-chart" style={{ height: '80px', marginTop: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
-                    {getChartData().slice(-7).map((day, index) => (
-                      <div 
-                        key={day.date} 
-                        className="day-bar"
-                        style={{
-                          flexGrow: 1,
-                          height: day.total.requests ? `${Math.max(20, day.total.requests * 15)}px` : '5px',
-                          margin: '0 2px',
-                          backgroundColor: day.date === selectedDay ? '#52c41a' : 'rgba(82, 196, 26, 0.6)',
-                          borderTopLeftRadius: '3px',
-                          borderTopRightRadius: '3px',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease'
-                        }}
-                        onClick={() => handleBarClick(day.date)}
-                        title={`${day.formattedDate}: ${day.total.requests} requests`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-          
-          {selectedDay && (
-            <div className="selected-day-details" style={{ marginBottom: '24px' }}>
-              <Card style={{ background: '#1a1a1a', borderColor: '#303030' }}>
-                <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
-                  Usage Details for {formatDate(selectedDay)}
-                </Typography.Title>
-                
-                <Row gutter={[24, 24]}>
-                  <Col span={24}>
-                    <div className="model-breakdown">
-                      <Table
-                        columns={[
-                          {
-                            title: 'Model',
-                            dataIndex: 'model',
-                            key: 'model',
-                            render: (_, record: ModelUsageSummary) => (
-                              <Space>
-                                <div style={{ width: 12, height: 12, backgroundColor: record.color, borderRadius: '50%' }} />
-                                <Text style={{ color: '#ffffff' }}>{record.model.split('/').pop()}</Text>
-                              </Space>
-                            )
-                          },
-                          {
-                            title: 'Provider',
-                            dataIndex: 'provider',
-                            key: 'provider',
-                            render: (provider) => <Text style={{ color: '#ffffff' }}>{provider}</Text>
-                          },
-                          {
-                            title: 'Cost',
-                            dataIndex: 'cost',
-                            key: 'cost',
-                            render: (cost) => <Text style={{ color: '#ffffff' }}>${cost.toFixed(7)}</Text>
-                          },
-                          {
-                            title: 'Tokens',
-                            dataIndex: 'tokens',
-                            key: 'tokens',
-                            render: (tokens) => <Text style={{ color: '#ffffff' }}>{tokens.toLocaleString()}</Text>
-                          },
-                          {
-                            title: 'Requests',
-                            dataIndex: 'requests',
-                            key: 'requests',
-                            render: (requests) => <Text style={{ color: '#ffffff' }}>{requests}</Text>
-                          },
-                          {
-                            title: 'Users',
-                            key: 'users',
-                            render: (_, record: ModelUsageSummary) => {
-                              const recordsForModel = filteredUsageRecords.filter(r => r.date === selectedDay && r.model === record.model);
-                              return <Text style={{ color: '#ffffff' }}>{getModelUsers(recordsForModel)}</Text>;
-                            }
-                          },
-                          {
-                            title: 'Actions',
-                            key: 'actions',
-                            render: (_, record: ModelUsageSummary) => (
-                              <Button 
-                                type="link" 
-                                size="small"
-                                onClick={() => handleModelDetailClick({...record, date: selectedDay})}
-                              >
-                                详情
-                              </Button>
-                            )
-                          }
-                        ]}
-                        dataSource={modelUsage.filter(model => {
-                          // Only include models that have data for the selected day
-                          const recordsForDate = usageRecords.filter(r => 
-                            r.date === selectedDay && 
-                            r.model === model.model && 
-                            (usageFilter === 'team' || r.user === usageFilter)
-                          );
-                          return recordsForDate.length > 0;
-                        })}
-                        pagination={false}
-                        rowKey="model"
-                        style={{ background: 'transparent' }}
-                      />
+
+            <Row gutter={[24, 24]}>
+              <Col xs={24} sm={8}>
+                <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                  <Statistic 
+                    title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Spend</Text>} 
+                    value={teamUsageSummary.spend.lastDay} 
+                    valueStyle={{ color: '#ffffff', fontSize: '28px' }}
+                  />
+                  <div className="stat-footer" style={{ marginTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
+                      <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {teamUsageSummary.spend.lastWeek}</Text>
                     </div>
-                  </Col>
-                </Row>
-              </Card>
-            </div>
-          )}
-          
-          <Table
-            columns={usageColumns}
-            dataSource={filteredUsageRecords}
-            rowKey="id"
-            className="usage-table"
-            pagination={{ pageSize: 10 }}
-            style={{ background: '#141414', borderRadius: '8px' }}
-          />
-        </TabPane>
-        <TabPane
-          tab={
-            <span>
-              <KeyOutlined />
-              API Keys
-            </span>
-          }
-          key="apikeys"
-        >
-          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <Title level={5} style={{ margin: 0, color: '#ffffff' }}>Team API Keys</Title>
-              <Text type="secondary">Manage API keys for team access</Text>
-            </div>
-            {team.currentUserRole !== 'member' && (
-              <Button
-                type="primary"
-                icon={<KeyOutlined />}
-                onClick={() => setApiKeyModalVisible(true)}
-              >
-                Create API Key
-              </Button>
+                  </div>
+                  <div className="stat-chart" style={{ height: '120px', marginTop: '16px', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                      {getChartData().slice(-7).map((day, index) => (
+                        <div 
+                          key={day.date} 
+                          className="day-bar-container"
+                          style={{
+                            flexGrow: 1,
+                            display: 'flex',
+                            flexDirection: 'column-reverse',
+                            alignItems: 'center',
+                            margin: '0 2px',
+                            cursor: 'pointer',
+                            height: '100%',
+                            position: 'relative'
+                          }}
+                          onClick={() => handleBarClick(day.date)}
+                        >
+                          {day.modelDataArray && day.modelDataArray.length > 0 ? (
+                            day.modelDataArray.map((modelData, modelIndex) => (
+                              <div
+                                key={`${day.date}-${modelData.model}-${modelIndex}`}
+                                style={{
+                                  width: '100%',
+                                  height: modelData.cost ? `${Math.max(5, modelData.cost * 100000)}px` : '0px',
+                                  backgroundColor: modelData.color,
+                                  borderTopLeftRadius: modelIndex === day.modelDataArray.length - 1 ? '3px' : '0',
+                                  borderTopRightRadius: modelIndex === day.modelDataArray.length - 1 ? '3px' : '0',
+                                  opacity: day.date === selectedDay ? 1 : 0.7,
+                                  transition: 'all 0.3s ease'
+                                }}
+                                title={`${day.formattedDate}: ${modelData.model.split('/').pop()} - $${modelData.cost.toFixed(7)}`}
+                              />
+                            ))
+                          ) : (
+                            <div
+                              style={{
+                                width: '100%',
+                                height: '5px',
+                                backgroundColor: 'rgba(24, 144, 255, 0.2)',
+                                borderTopLeftRadius: '3px',
+                                borderTopRightRadius: '3px'
+                              }}
+                            />
+                          )}
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: 'rgba(255, 255, 255, 0.65)',
+                            marginTop: '4px',
+                            textAlign: 'center',
+                            position: 'absolute',
+                            bottom: '-20px',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {day.formattedDate}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                  <Statistic 
+                    title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Tokens</Text>} 
+                    value={teamUsageSummary.tokens.lastDay.toLocaleString()} 
+                    valueStyle={{ color: '#ffffff', fontSize: '28px' }}
+                    suffix="K"
+                  />
+                  <div className="stat-footer" style={{ marginTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
+                      <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {(teamUsageSummary.tokens.lastWeek / 1000000).toFixed(2)}M</Text>
+                    </div>
+                  </div>
+                  <div className="stat-chart" style={{ height: '120px', marginTop: '16px', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                      {getChartData().slice(-7).map((day, index) => (
+                        <div 
+                          key={day.date} 
+                          className="day-bar-container"
+                          style={{
+                            flexGrow: 1,
+                            display: 'flex',
+                            flexDirection: 'column-reverse',
+                            alignItems: 'center',
+                            margin: '0 2px',
+                            cursor: 'pointer',
+                            height: '100%',
+                            position: 'relative'
+                          }}
+                          onClick={() => handleBarClick(day.date)}
+                        >
+                          {day.modelDataArray && day.modelDataArray.length > 0 ? (
+                            day.modelDataArray.map((modelData, modelIndex) => (
+                              <div
+                                key={`${day.date}-${modelData.model}-${modelIndex}`}
+                                style={{
+                                  width: '100%',
+                                  height: modelData.tokens ? `${Math.max(5, (modelData.tokens / 500) * 75 / 30)}px` : '0px',
+                                  backgroundColor: modelData.color,
+                                  borderTopLeftRadius: modelIndex === day.modelDataArray.length - 1 ? '3px' : '0',
+                                  borderTopRightRadius: modelIndex === day.modelDataArray.length - 1 ? '3px' : '0',
+                                  opacity: day.date === selectedDay ? 1 : 0.7,
+                                  transition: 'all 0.3s ease'
+                                }}
+                                title={`${day.formattedDate}: ${modelData.model.split('/').pop()} - ${modelData.tokens.toLocaleString()} tokens`}
+                              />
+                            ))
+                          ) : (
+                            <div
+                              style={{
+                                width: '100%',
+                                height: '5px',
+                                backgroundColor: 'rgba(250, 173, 20, 0.2)',
+                                borderTopLeftRadius: '3px',
+                                borderTopRightRadius: '3px'
+                              }}
+                            />
+                          )}
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: 'rgba(255, 255, 255, 0.65)',
+                            marginTop: '4px',
+                            textAlign: 'center',
+                            position: 'absolute',
+                            bottom: '-20px',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {day.formattedDate}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Card className="usage-stat-card" style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                  <Statistic 
+                    title={<Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '16px' }}>Requests</Text>} 
+                    value={teamUsageSummary.requests.lastDay} 
+                    valueStyle={{ color: '#ffffff', fontSize: '28px' }}
+                  />
+                  <div className="stat-footer" style={{ marginTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last day</Text>
+                      <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Last week: {teamUsageSummary.requests.lastWeek.toLocaleString()}K</Text>
+                    </div>
+                  </div>
+                  <div className="stat-chart" style={{ height: '120px', marginTop: '16px', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                      {getChartData().slice(-7).map((day, index) => (
+                        <div 
+                          key={day.date} 
+                          className="day-bar-container"
+                          style={{
+                            flexGrow: 1,
+                            display: 'flex',
+                            flexDirection: 'column-reverse',
+                            alignItems: 'center',
+                            margin: '0 2px',
+                            cursor: 'pointer',
+                            height: '100%',
+                            position: 'relative'
+                          }}
+                          onClick={() => handleBarClick(day.date)}
+                        >
+                          {day.modelDataArray && day.modelDataArray.length > 0 ? (
+                            day.modelDataArray.map((modelData, modelIndex) => (
+                              <div
+                                key={`${day.date}-${modelData.model}-${modelIndex}`}
+                                style={{
+                                  width: '100%',
+                                  height: modelData.requests ? `${Math.max(5, modelData.requests * 12)}px` : '0px',
+                                  backgroundColor: modelData.color,
+                                  borderTopLeftRadius: modelIndex === day.modelDataArray.length - 1 ? '3px' : '0',
+                                  borderTopRightRadius: modelIndex === day.modelDataArray.length - 1 ? '3px' : '0',
+                                  opacity: day.date === selectedDay ? 1 : 0.7,
+                                  transition: 'all 0.3s ease'
+                                }}
+                                title={`${day.formattedDate}: ${modelData.model.split('/').pop()} - ${modelData.requests} requests`}
+                              />
+                            ))
+                          ) : (
+                            <div
+                              style={{
+                                width: '100%',
+                                height: '5px',
+                                backgroundColor: 'rgba(82, 196, 26, 0.2)',
+                                borderTopLeftRadius: '3px',
+                                borderTopRightRadius: '3px'
+                              }}
+                            />
+                          )}
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: 'rgba(255, 255, 255, 0.65)',
+                            marginTop: '4px',
+                            textAlign: 'center',
+                            position: 'absolute',
+                            bottom: '-20px',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {day.formattedDate}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+            
+            {selectedDay && (
+              <div className="selected-day-details" style={{ marginBottom: '24px', marginTop: '24px' }}>
+                <Card style={{ background: '#1a1a1a', borderColor: '#303030' }}>
+                  <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
+                    Usage Details for {formatDate(selectedDay)}
+                  </Typography.Title>
+                  
+                  <Row gutter={[24, 24]}>
+                    <Col span={24}>
+                      <div className="model-breakdown">
+                        <Table
+                          columns={[
+                            {
+                              title: 'Model',
+                              dataIndex: 'model',
+                              key: 'model',
+                              render: (_, record: ModelUsageSummary) => (
+                                <Space>
+                                  <div style={{ width: 12, height: 12, backgroundColor: record.color, borderRadius: '50%' }} />
+                                  <Text style={{ color: '#ffffff' }}>{record.model.split('/').pop()}</Text>
+                                </Space>
+                              )
+                            },
+                            {
+                              title: 'Cost',
+                              dataIndex: 'cost',
+                              key: 'cost',
+                              render: (cost) => <Text style={{ color: '#ffffff' }}>${cost.toFixed(7)}</Text>
+                            },
+                            {
+                              title: 'Tokens',
+                              dataIndex: 'tokens',
+                              key: 'tokens',
+                              render: (tokens) => <Text style={{ color: '#ffffff' }}>{tokens.toLocaleString()}</Text>
+                            },
+                            {
+                              title: 'Requests',
+                              dataIndex: 'requests',
+                              key: 'requests',
+                              render: (requests) => <Text style={{ color: '#ffffff' }}>{requests}</Text>
+                            },
+                            {
+                              title: 'Users',
+                              key: 'users',
+                              render: (_, record: ModelUsageSummary) => {
+                                const recordsForModel = filteredUsageRecords.filter(r => r.date === selectedDay && r.model === record.model);
+                                return <Text style={{ color: '#ffffff' }}>{getModelUsers(recordsForModel)}</Text>;
+                              }
+                            }
+                          ]}
+                          dataSource={modelUsage.filter(model => {
+                            // Only include models that have data for the selected day
+                            const recordsForDate = usageRecords.filter(r => 
+                              r.date === selectedDay && 
+                              r.model === model.model && 
+                              (usageFilter === 'team' || r.user === usageFilter)
+                            );
+                            return recordsForDate.length > 0;
+                          })}
+                          pagination={false}
+                          rowKey="model"
+                          style={{ background: 'transparent' }}
+                        />
+                      </div>
+                    </Col>
+                  </Row>
+                </Card>
+              </div>
             )}
-          </div>
+            
+            <Card style={{ background: '#1a1a1a', borderColor: '#303030', marginTop: '24px' }}>
+              <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
+                Detailed Usage Records
+              </Typography.Title>
+              
+              <div style={{ marginBottom: '16px' }}>
+                <Space wrap style={{ marginBottom: '16px' }}>
+                  <Text strong style={{ color: '#ffffff' }}>Filter by:</Text>
+                  <Select 
+                    value={usageFilter} 
+                    onChange={(value) => {
+                      setUsageFilter(value);
+                      // If "Entire Team" is selected, set date range to display all data
+                      if (value === 'team') {
+                        const allDates = dailyUsage.map(d => d.date).sort();
+                        if (allDates.length > 0) {
+                          setDateRange([
+                            dayjs(allDates[0]),
+                            dayjs(allDates[allDates.length - 1])
+                          ]);
+                        }
+                        setModelFilter('all');
+                      }
+                    }}
+                    style={{ width: '200px' }}
+                    dropdownStyle={{ background: '#1f1f1f', borderColor: '#303030' }}
+                  >
+                    <Select.Option value="team">Entire Team</Select.Option>
+                    {team.members.map(member => (
+                      <Select.Option key={member.id} value={member.email}>
+                        {member.email} {member.isCurrentUser && '(You)'}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                  
+                  <Text strong style={{ color: '#ffffff', marginLeft: '16px' }}>Model:</Text>
+                  <Select 
+                    value={modelFilter} 
+                    onChange={setModelFilter}
+                    style={{ width: '240px' }}
+                    dropdownStyle={{ background: '#1f1f1f', borderColor: '#303030' }}
+                  >
+                    <Select.Option value="all">All Models</Select.Option>
+                    {modelUsage.map(model => (
+                      <Select.Option key={model.model} value={model.model}>
+                        {model.provider}/{model.model.split('/').pop()}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                  
+                  <Text strong style={{ color: '#ffffff', marginLeft: '16px' }}>Date Range:</Text>
+                  <DatePicker.RangePicker 
+                    value={dateRange}
+                    onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])}
+                    style={{ background: '#1a1a1a', borderColor: '#303030' }}
+                  />
+                </Space>
+              </div>
 
-          <div className="api-keys-alert ant-alert ant-alert-info" style={{ marginBottom: '20px', padding: '12px 16px' }}>
-            <div className="ant-alert-message">API Key Security</div>
-            <div className="ant-alert-description">
-              API keys provide full access to your team's resources. Keep them secure and never share them in publicly accessible areas.
+              <Table
+                columns={usageColumns}
+                dataSource={filteredUsageRecords}
+                rowKey="id"
+                className="usage-table"
+                pagination={{ pageSize: 10 }}
+                style={{ background: '#141414', borderRadius: '8px' }}
+              />
+              
+              {/* Debug section to show raw data */}
+              <Card title="模型使用数据 (调试)" style={{ marginTop: '24px', background: '#1a1a1a', borderColor: '#303030' }}>
+                <div style={{ maxHeight: '400px', overflow: 'auto', fontSize: '12px', fontFamily: 'monospace', color: '#ffffff' }}>
+                  <h4>所有模型使用统计:</h4>
+                  <Table
+                    columns={[
+                      {
+                        title: 'Model',
+                        dataIndex: 'model',
+                        key: 'model',
+                        render: (model) => (
+                          <Space>
+                            <div style={{ width: 12, height: 12, backgroundColor: modelUsage.find(m => m.model === model)?.color || '#1890ff', borderRadius: '50%' }} />
+                            <Text style={{ color: '#ffffff' }}>{model.split('/').pop()}</Text>
+                          </Space>
+                        )
+                      },
+                      {
+                        title: 'Provider',
+                        dataIndex: 'provider',
+                        key: 'provider',
+                        render: (provider) => <Text style={{ color: '#ffffff' }}>{provider}</Text>
+                      },
+                      {
+                        title: 'Cost',
+                        dataIndex: 'cost',
+                        key: 'cost',
+                        render: (cost) => <Text style={{ color: '#ffffff' }}>${cost.toFixed(7)}</Text>
+                      },
+                      {
+                        title: 'Tokens',
+                        dataIndex: 'tokens',
+                        key: 'tokens',
+                        render: (tokens) => <Text style={{ color: '#ffffff' }}>{tokens.toLocaleString()}</Text>
+                      },
+                      {
+                        title: 'Requests',
+                        dataIndex: 'requests',
+                        key: 'requests',
+                        render: (requests) => <Text style={{ color: '#ffffff' }}>{requests}</Text>
+                      }
+                    ]}
+                    dataSource={modelUsage}
+                    rowKey="model"
+                    pagination={false}
+                    style={{ background: 'transparent' }}
+                  />
+                  
+                  <h4>每日使用数据:</h4>
+                  <pre>{JSON.stringify(dailyUsage, null, 2)}</pre>
+                </div>
+              </Card>
+            </Card>
             </div>
-          </div>
-
-          <div className="table-container">
-            {renderTableTitle('Team API Keys', <KeyOutlined style={{ color: '#1890ff' }} />, team.apiKeys.length)}
-            <Table
-              columns={apiKeyColumns}
-              dataSource={team.apiKeys}
-              rowKey="id"
-              pagination={false}
-              className="members-table"
-              tableLayout="fixed"
-            />
-          </div>
-        </TabPane>
-        <TabPane
-          tab={
-            <span>
-              <SettingOutlined />
-              Team Settings
-            </span>
-          }
-          key="settings"
-        >
-          {/* TODO: 实现团队设置功能 */}
-          <p style={{ color: '#fff' }}>Team settings feature is under development...</p>
-        </TabPane>
-      </Tabs>
-
-      <Modal
-        title="Invite New Member"
-        open={inviteModalVisible}
-        onOk={() => form.submit()}
-        onCancel={() => {
-          setInviteModalVisible(false);
-          form.resetFields();
-        }}
-        okText="Send Invitation"
-        cancelText="Cancel"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleInviteMember}
-        >
-          <Form.Item
-            name="email"
-            label="Email Address"
-            rules={[{ required: true, type: 'email', message: 'Please enter a valid email address' }]}
+          </TabPane>
+          <TabPane
+            tab={
+              <span>
+                <KeyOutlined />
+                API Keys
+              </span>
+            }
+            key="apikeys"
           >
-            <Input placeholder="Enter email address" />
-          </Form.Item>
-          <Form.Item
-            name="role"
-            label="Role"
-            initialValue="member"
-            rules={[{ required: true, message: 'Please select a role' }]}
-          >
-            <Select>
-              <Select.Option value="admin">Administrator</Select.Option>
-              <Select.Option value="member">Member</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name="permissions" label="Permissions">
-            <Checkbox.Group>
-              <Checkbox value="create_inference_api_key">Create Inference API Key</Checkbox>
-              <Checkbox value="create_storage_secret_key">Create Storage Secret Key</Checkbox>
-            </Checkbox.Group>
-          </Form.Item>
-        </Form>
-      </Modal>
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <Title level={5} style={{ margin: 0, color: '#ffffff' }}>Team API Keys</Title>
+                <Text type="secondary">Manage API keys for team access</Text>
+              </div>
+              {team.currentUserRole !== 'member' && (
+                <Button
+                  type="primary"
+                  icon={<KeyOutlined />}
+                  onClick={() => setApiKeyModalVisible(true)}
+                >
+                  Create API Key
+                </Button>
+              )}
+            </div>
 
-      <Modal
-        title="Create API Key"
-        open={apiKeyModalVisible}
-        onOk={() => apiKeyForm.submit()}
-        onCancel={() => {
-          setApiKeyModalVisible(false);
-          apiKeyForm.resetFields();
-          setApiKeyNameValue('');
-        }}
-        okText="Create"
-        cancelText="Cancel"
-      >
-        <Form
-          form={apiKeyForm}
-          layout="vertical"
-          onFinish={handleCreateApiKey}
+            <div className="api-keys-alert ant-alert ant-alert-info" style={{ marginBottom: '20px', padding: '12px 16px' }}>
+              <div className="ant-alert-message">API Key Security</div>
+              <div className="ant-alert-description">
+                API keys provide full access to your team's resources. Keep them secure and never share them in publicly accessible areas.
+              </div>
+            </div>
+
+            <div className="table-container">
+              {renderTableTitle('Team API Keys', <KeyOutlined style={{ color: '#1890ff' }} />, team.apiKeys.length)}
+              <Table
+                columns={apiKeyColumns}
+                dataSource={team.apiKeys}
+                rowKey="id"
+                pagination={false}
+                className="members-table"
+                tableLayout="fixed"
+              />
+            </div>
+          </TabPane>
+          <TabPane
+            tab={
+              <span>
+                <SettingOutlined />
+                Team Settings
+              </span>
+            }
+            key="settings"
+          >
+            {/* TODO: 实现团队设置功能 */}
+            <p style={{ color: '#fff' }}>Team settings feature is under development...</p>
+          </TabPane>
+        </Tabs>
+
+        <Modal
+          title="Invite New Member"
+          open={inviteModalVisible}
+          onOk={() => form.submit()}
+          onCancel={() => {
+            setInviteModalVisible(false);
+            form.resetFields();
+          }}
+          okText="Send Invitation"
+          cancelText="Cancel"
         >
-          <Form.Item
-            name="name"
-            label="Key Name"
-            rules={[{ required: true, message: 'Please enter a key name' }]}
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleInviteMember}
           >
-            <Input 
-              placeholder="e.g. Production API Key" 
-              value={apiKeyNameValue}
-              onChange={(e) => setApiKeyNameValue(e.target.value)}
-            />
-          </Form.Item>
-          <Paragraph style={{ color: 'rgba(255, 255, 255, 0.65)' }}>
-            The API key will provide access to resources within this team. Key will only be displayed once upon creation.
-          </Paragraph>
-        </Form>
-      </Modal>
+            <Form.Item
+              name="email"
+              label="Email Address"
+              rules={[{ required: true, type: 'email', message: 'Please enter a valid email address' }]}
+            >
+              <Input placeholder="Enter email address" />
+            </Form.Item>
+            <Form.Item
+              name="role"
+              label="Role"
+              initialValue="member"
+              rules={[{ required: true, message: 'Please select a role' }]}
+            >
+              <Select>
+                <Select.Option value="admin">Administrator</Select.Option>
+                <Select.Option value="member">Member</Select.Option>
+              </Select>
+            </Form.Item>
+            <Form.Item name="permissions" label="Permissions">
+              <Checkbox.Group>
+                <Checkbox value="create_inference_api_key">Create Inference API Key</Checkbox>
+                <Checkbox value="create_storage_secret_key">Create Storage Secret Key</Checkbox>
+              </Checkbox.Group>
+            </Form.Item>
+          </Form>
+        </Modal>
 
-      {/* 模型使用详情弹窗 */}
-      <ModelUsageDetailModal
-        visible={modelDetailVisible}
-        onClose={() => setModelDetailVisible(false)}
-        modelData={selectedModelData}
-        usageRecords={usageRecords}
-        date={selectedModelData?.date || ''}
-      />
-    </Card>
-  );
-};
+        <Modal
+          title="Create API Key"
+          open={apiKeyModalVisible}
+          onOk={() => apiKeyForm.submit()}
+          onCancel={() => {
+            setApiKeyModalVisible(false);
+            apiKeyForm.resetFields();
+            setApiKeyNameValue('');
+          }}
+          okText="Create"
+          cancelText="Cancel"
+        >
+          <Form
+            form={apiKeyForm}
+            layout="vertical"
+            onFinish={handleCreateApiKey}
+          >
+            <Form.Item
+              name="name"
+              label="Key Name"
+              rules={[{ required: true, message: 'Please enter a key name' }]}
+            >
+              <Input 
+                placeholder="e.g. Production API Key" 
+                value={apiKeyNameValue}
+                onChange={(e) => setApiKeyNameValue(e.target.value)}
+              />
+            </Form.Item>
+            <Paragraph style={{ color: 'rgba(255, 255, 255, 0.65)' }}>
+              The API key will provide access to resources within this team. Key will only be displayed once upon creation.
+            </Paragraph>
+          </Form>
+        </Modal>
 
-export default TeamManagement;
+        {/* 模型使用详情弹窗 */}
+        <ModelUsageDetailModal
+          visible={modelDetailVisible}
+          onClose={() => setModelDetailVisible(false)}
+          modelData={selectedModelData}
+          usageRecords={usageRecords}
+          date={selectedModelData?.date || ''}
+        />
+      </Card>
+    );
+  };
+
+  export default TeamManagement;
