@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Table, Button, Space, Modal, message, Tag, Typography, Tooltip } from 'antd';
-import { TeamOutlined, DeleteOutlined, SettingOutlined, UserOutlined, CalendarOutlined } from '@ant-design/icons';
+import { TeamOutlined, DeleteOutlined, SettingOutlined, UserOutlined, CalendarOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -48,6 +48,10 @@ const TeamList: React.FC = () => {
 
   const handleManageTeam = (teamId: string) => {
     navigate(`/teams/${teamId}/manage`);
+  };
+
+  const handleViewTeamUsage = (teamId: string) => {
+    navigate(`/teams/${teamId}/manage#usage`);
   };
 
   const showDeleteConfirm = (team: Team) => {
@@ -153,6 +157,18 @@ const TeamList: React.FC = () => {
                 className="team-action-btn"
               >
                 Manage
+              </Button>
+            </Tooltip>
+          )}
+          {record.role === 'member' && (
+            <Tooltip title="View team usage analytics">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                onClick={() => handleViewTeamUsage(record.id)}
+                className="team-action-btn"
+              >
+                View
               </Button>
             </Tooltip>
           )}

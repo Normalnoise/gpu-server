@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Card, Tabs, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typography, Divider, Checkbox, Row, Col, DatePicker, Statistic, Tooltip, Radio } from 'antd';
 import ModelUsageDetailModal from '../components/ModelUsageDetailModal';
 import type { RadioChangeEvent } from 'antd';
@@ -34,7 +34,6 @@ import {
   LineChartOutlined,
   UserSwitchOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { createInvitation, sendInvitationEmail } from '../services/invitationService';
 
@@ -131,6 +130,17 @@ const { RangePicker } = DatePicker;
 const TeamManagement: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
+  const location = useLocation(); // Added useLocation
+  const [activeTabKey, setActiveTabKey] = useState('members');
+
+  useEffect(() => {
+    if (location.hash === '#usage') {
+      setActiveTabKey('usage');
+    } else {
+      setActiveTabKey('members'); // Default tab
+    }
+  }, [location.hash]);
+
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
   const [apiKeyModalVisible, setApiKeyModalVisible] = useState(false);
   const [apiKeyNameValue, setApiKeyNameValue] = useState('');
@@ -1713,7 +1723,7 @@ const TeamManagement: React.FC = () => {
           Invite Member
         </Button>
       </Space>
-      <Tabs defaultActiveKey="members" className="team-management-tabs">
+      <Tabs activeKey={activeTabKey} onChange={setActiveTabKey} className="team-management-tabs">
         <TabPane
           tab={
             <span>
