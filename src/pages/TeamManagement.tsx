@@ -46,6 +46,7 @@ interface TeamMember {
   expiresAt?: string;
   invitedBy?: string;
   isCurrentUser?: boolean;
+  permissions?: string[]; // Added permissions
 }
 
 interface TeamApiKey {
@@ -159,16 +160,16 @@ const TeamManagement: React.FC = () => {
   const [selectedModelData, setSelectedModelData] = useState<any>(null);
 
   // 模拟团队数据
-  const [team] = useState<Team>({
+  const [team, setTeam] = useState<Team>({ // Changed to useState with setTeam
     id: teamId || '',
     name: 'ML Development',
     description: 'Machine Learning Development Team',
-    currentUserRole: 'admin',
+    currentUserRole: 'owner', // Changed from 'admin' to 'owner'
     members: [
-      { id: '1', email: 'owner@example.com', role: 'owner', status: 'active', invitedAt: '2024-04-01', invitedBy: 'System' },
-      { id: '2', email: 'admin@example.com', role: 'admin', status: 'active', invitedAt: '2024-04-01', invitedBy: 'owner@example.com', isCurrentUser: true },
-      { id: '3', email: 'member1@example.com', role: 'member', status: 'active', invitedAt: '2024-04-01', invitedBy: 'admin@example.com' },
-      { id: '4', email: 'pending1@example.com', role: 'member', status: 'pending', invitedAt: '2024-04-01', expiresAt: '2024-05-01', invitedBy: 'admin@example.com' },
+      { id: '1', email: 'owner@example.com', role: 'owner', status: 'active', invitedAt: '2024-04-01', invitedBy: 'System', permissions: ['create_inference_api_key', 'create_storage_secret_key', 'manage_billing'], isCurrentUser: true }, // Added isCurrentUser: true
+      { id: '2', email: 'admin@example.com', role: 'admin', status: 'active', invitedAt: '2024-04-01', invitedBy: 'owner@example.com', permissions: ['create_inference_api_key', 'create_storage_secret_key'] }, // Removed isCurrentUser: true
+      { id: '3', email: 'member1@example.com', role: 'member', status: 'active', invitedAt: '2024-04-01', invitedBy: 'admin@example.com', permissions: ['create_inference_api_key'] },
+      { id: '4', email: 'pending1@example.com', role: 'member', status: 'pending', invitedAt: '2024-04-01', expiresAt: '2024-05-01', invitedBy: 'admin@example.com', permissions: ['create_inference_api_key'] },
     ],
     apiKeys: [
       { id: '1', name: 'Production API Key', key: 'sk_prod_123456789', createdAt: '2024-04-01', createdBy: 'owner@example.com', status: 'active', lastUsed: '2024-04-10' },
@@ -923,7 +924,7 @@ const TeamManagement: React.FC = () => {
     return `${prefix}${'*'.repeat(Math.max(0, key.length - 8))}${suffix}`;
   };
 
-  const handleInviteMember = async (values: { email: string; role: string }) => {
+  const handleInviteMember = async (values: { email: string; role: string; permissions: string[] }) => {
     try {
       console.log('Inviting member:', values);
       
@@ -983,6 +984,23 @@ const TeamManagement: React.FC = () => {
       
       setInviteModalVisible(false);
       form.resetFields();
+
+      // Add pending member to the team state for demonstration purposes
+      const newPendingMember: TeamMember = {
+        id: `pending-${Date.now()}`, // Simple unique ID for demo
+        email: values.email,
+        role: values.role as 'admin' | 'member',
+        status: 'pending',
+        invitedAt: dayjs().format('YYYY-MM-DD'),
+        expiresAt: dayjs().add(7, 'days').format('YYYY-MM-DD'), // Example expiration
+        invitedBy: team.members.find(m => m.isCurrentUser)?.email || 'current-user@example.com',
+        permissions: values.permissions,
+      };
+      setTeam(prevTeam => ({
+        ...prevTeam,
+        members: [...prevTeam.members, newPendingMember],
+      }));
+
     } catch (error) {
       console.error('Failed to create invitation:', error);
       message.error('Failed to send invitation');
@@ -1006,6 +1024,12 @@ const TeamManagement: React.FC = () => {
     try {
       // TODO: 实现更新角色的API调用
       console.log('Updating role:', { memberId, newRole });
+      setTeam(prevTeam => ({
+        ...prevTeam,
+        members: prevTeam.members.map(member =>
+          member.id === memberId ? { ...member, role: newRole as 'owner' | 'admin' | 'member' } : member
+        ),
+      }));
       message.success('Role updated successfully');
     } catch (error) {
       message.error('Failed to update role');
@@ -1162,7 +1186,7 @@ const TeamManagement: React.FC = () => {
       ),
       dataIndex: 'email',
       key: 'email',
-      width: '30%',
+      width: '25%', // Adjusted width
       render: (email: string, record: TeamMember) => (
         <Text style={{ color: '#ffffff' }}>
           {email}
@@ -1179,8 +1203,23 @@ const TeamManagement: React.FC = () => {
       ),
       dataIndex: 'role',
       key: 'role',
-      width: '20%',
+      width: '15%', // Adjusted width
       render: (role: string, record: TeamMember) => {
+        // Condition for showing dropdown: current user is owner, target is not owner, and target is not current user.
+        if (team.currentUserRole === 'owner' && record.role !== 'owner' && !record.isCurrentUser) {
+          return (
+            <Select
+              value={role} // Controlled component
+              style={{ width: 120 }}
+              onChange={(value) => handleUpdateRole(record.id, value)}
+              dropdownClassName="role-select-dropdown"
+            >
+              <Select.Option value="admin">Admin</Select.Option>
+              <Select.Option value="member">Member</Select.Option>
+            </Select>
+          );
+        }
+        // Default display for roles (Tag)
         const colorMap = {
           owner: 'gold',
           admin: 'blue',
@@ -1216,41 +1255,60 @@ const TeamManagement: React.FC = () => {
     },
     {
       title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <SettingOutlined style={{ marginRight: '8px' }} />
+          Permissions
+        </Text>
+      ),
+      dataIndex: 'permissions',
+      key: 'permissions',
+      width: '20%',
+      render: (permissions: string[]) => (
+        <div>
+          {permissions && permissions.length > 0 ? (
+            permissions.map(permission => (
+              <Tag key={permission} color="geekblue" style={{ marginBottom: '4px' }}>
+                {permission.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </Tag>
+            ))
+          ) : (
+            <Text style={{ color: 'rgba(255, 255, 255, 0.45)' }}>No specific permissions</Text>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: () => (
         <Text strong style={{ fontSize: '14px', color: '#ffffff', display: 'flex', justifyContent: 'flex-end' }}>
           Actions
         </Text>
       ),
       key: 'action',
-      width: '30%',
+      width: '20%', // Adjusted width
       align: 'right',
       render: (_: any, record: TeamMember) => {
-        if (team.currentUserRole !== 'owner' && record.role === 'owner') {
+        // Conditions for showing the remove button:
+        // 1. Current user is owner AND target member is not an owner AND target is not current user.
+        // OR
+        // 2. Current user is admin AND target member is a member AND target is not current user.
+        const canRemove = 
+          (team.currentUserRole === 'owner' && record.role !== 'owner' && !record.isCurrentUser) ||
+          (team.currentUserRole === 'admin' && record.role === 'member' && !record.isCurrentUser);
+
+        if (!canRemove) {
           return null;
         }
+
         return (
           <Space>
-            {team.currentUserRole === 'owner' && record.role !== 'owner' && (
-              <Select
-                defaultValue={record.role}
-                style={{ width: 100 }}
-                onChange={(value) => handleUpdateRole(record.id, value)}
-                dropdownClassName="role-select-dropdown"
-              >
-                <Select.Option value="admin">Admin</Select.Option>
-                <Select.Option value="member">Member</Select.Option>
-              </Select>
-            )}
-            {((team.currentUserRole === 'owner') ||
-              (team.currentUserRole === 'admin' && record.role === 'member')) && (
-              <Button
-                type="text"
-                danger
-                className="member-action-btn"
-                onClick={() => handleRemoveMember(record.id, record.email)}
-              >
-                Remove
-              </Button>
-            )}
+            <Button
+              type="text"
+              danger
+              className="member-action-btn"
+              onClick={() => handleRemoveMember(record.id, record.email)}
+            >
+              Remove
+            </Button>
           </Space>
         );
       },
@@ -2338,10 +2396,19 @@ const TeamManagement: React.FC = () => {
                 <Select.Option value="member">Member</Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item name="permissions" label="Permissions">
+            <Form.Item name="permissions" label="Permissions" initialValue={['create_inference_api_key']}>
               <Checkbox.Group>
-                <Checkbox value="create_inference_api_key">Create Inference API Key</Checkbox>
-                <Checkbox value="create_storage_secret_key">Create Storage Secret Key</Checkbox>
+                <Row>
+                  <Col span={24}>
+                    <Checkbox value="create_inference_api_key">Create Inference API Key</Checkbox>
+                  </Col>
+                  <Col span={24}>
+                    <Checkbox value="create_storage_secret_key">Create Storage Secret Key</Checkbox>
+                  </Col>
+                  <Col span={24}>
+                    <Checkbox value="manage_billing">Manage Billing</Checkbox>
+                  </Col>
+                </Row>
               </Checkbox.Group>
             </Form.Item>
           </Form>
