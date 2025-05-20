@@ -10,6 +10,7 @@ import EmptyTeam from './pages/EmptyTeam';
 import ServerlessModels from './pages/ServerlessModels';
 import InviteAccept from './pages/InviteAccept';
 import Billing from './pages/Billing';
+import InviteMember from './pages/InviteMember';
 import { darkTheme } from './theme/darkTheme';
 import './App.less';
 
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/teams/create" element={<CreateTeam />} />
                 <Route path="/teams/:teamId" element={<TeamOverview />} />
                 <Route path="/teams/:teamId/manage" element={<TeamManagement />} />
+                <Route path="/teams/:teamId/invite" element={<InviteMember />} />
                 <Route path="/api-keys" element={<ApiKeys />} />
                 <Route path="/serverless-models" element={<ServerlessModels />} />
                 <Route path="/billing" element={<Billing />} />

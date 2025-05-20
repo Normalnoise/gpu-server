@@ -128,6 +128,109 @@ const { Title, Text, Paragraph } = Typography;
 const { confirm } = Modal;
 const { RangePicker } = DatePicker;
 
+const PERMISSION_GROUPS = {
+  instance: {
+    title: 'Instance Management',
+    permissions: [
+      {
+        key: 'create_instance',
+        label: 'Create Instance',
+        description: 'Allow users to create new compute instances',
+        group: 'instance'
+      },
+      {
+        key: 'read_instance',
+        label: 'Read Instance',
+        description: 'Allow users to view compute instance information',
+        group: 'instance'
+      },
+      {
+        key: 'delete_instance',
+        label: 'Delete Instance',
+        description: 'Allow users to delete compute instances',
+        group: 'instance'
+      }
+    ]
+  },
+  storage: {
+    title: 'Storage Management',
+    permissions: [
+      {
+        key: 'create_storage',
+        label: 'Create Storage',
+        description: 'Allow users to create new storage spaces',
+        group: 'storage'
+      },
+      {
+        key: 'read_storage',
+        label: 'Read Storage',
+        description: 'Allow users to view storage contents',
+        group: 'storage'
+      },
+      {
+        key: 'delete_storage',
+        label: 'Delete Storage',
+        description: 'Allow users to delete storage contents',
+        group: 'storage'
+      },
+      {
+        key: 'manage_storage_access',
+        label: 'Manage Storage Access',
+        description: 'Allow users to manage storage access permissions',
+        group: 'storage'
+      }
+    ]
+  },
+  billing: {
+    title: 'Billing Management',
+    permissions: [
+      {
+        key: 'view_billing',
+        label: 'View Billing',
+        description: 'Allow users to view team billing information',
+        group: 'billing'
+      }
+    ]
+  },
+  inference: {
+    title: 'Inference Management',
+    permissions: [
+      {
+        key: 'use_inference',
+        label: 'Use Inference',
+        description: 'Allow users to use inference services',
+        group: 'inference'
+      }
+    ]
+  }
+};
+
+const PERMISSION_PACKAGES = {
+  developer: {
+    name: 'Developer Package',
+    permissions: [
+      'read_instance',
+      'create_storage',
+      'read_storage',
+      'use_inference'
+    ]
+  },
+  admin: {
+    name: 'Administrator Package',
+    permissions: [
+      'create_instance',
+      'read_instance',
+      'delete_instance',
+      'create_storage',
+      'read_storage',
+      'delete_storage',
+      'manage_storage_access',
+      'view_billing',
+      'use_inference'
+    ]
+  }
+};
+
 const TeamManagement: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
@@ -158,6 +261,8 @@ const TeamManagement: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [modelDetailVisible, setModelDetailVisible] = useState(false);
   const [selectedModelData, setSelectedModelData] = useState<any>(null);
+  const [selectedPermissionPackage, setSelectedPermissionPackage] = useState<string>('custom');
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   // 模拟团队数据
   const [team, setTeam] = useState<Team>({ // Changed to useState with setTeam
@@ -1775,7 +1880,7 @@ const TeamManagement: React.FC = () => {
         <Button
           type="primary"
           icon={<UserOutlined />}
-          onClick={() => setInviteModalVisible(true)}
+          onClick={() => navigate(`/teams/${teamId}/invite`)}
           disabled={team.currentUserRole === 'member'}
         >
           Invite Member
@@ -2361,58 +2466,6 @@ const TeamManagement: React.FC = () => {
             <p style={{ color: '#fff' }}>Team settings feature is under development...</p>
           </TabPane>
         </Tabs>
-
-        <Modal
-          title="Invite New Member"
-          open={inviteModalVisible}
-          onOk={() => form.submit()}
-          onCancel={() => {
-            setInviteModalVisible(false);
-            form.resetFields();
-          }}
-          okText="Send Invitation"
-          cancelText="Cancel"
-        >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleInviteMember}
-          >
-            <Form.Item
-              name="email"
-              label="Email Address"
-              rules={[{ required: true, type: 'email', message: 'Please enter a valid email address' }]}
-            >
-              <Input placeholder="Enter email address" />
-            </Form.Item>
-            <Form.Item
-              name="role"
-              label="Role"
-              initialValue="member"
-              rules={[{ required: true, message: 'Please select a role' }]}
-            >
-              <Select>
-                <Select.Option value="admin">Administrator</Select.Option>
-                <Select.Option value="member">Member</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name="permissions" label="Permissions" initialValue={['create_inference_api_key']}>
-              <Checkbox.Group>
-                <Row>
-                  <Col span={24}>
-                    <Checkbox value="create_inference_api_key">Create Inference API Key</Checkbox>
-                  </Col>
-                  <Col span={24}>
-                    <Checkbox value="create_storage_secret_key">Create Storage Secret Key</Checkbox>
-                  </Col>
-                  <Col span={24}>
-                    <Checkbox value="manage_billing">Manage Billing</Checkbox>
-                  </Col>
-                </Row>
-              </Checkbox.Group>
-            </Form.Item>
-          </Form>
-        </Modal>
 
         <Modal
           title="Create API Key"
