@@ -11,6 +11,7 @@ import ServerlessModels from './pages/ServerlessModels';
 import InviteAccept from './pages/InviteAccept';
 import Billing from './pages/Billing';
 import InviteMember from './pages/InviteMember';
+import Instances from './pages/Instances';
 import { darkTheme } from './theme/darkTheme';
 import './App.less';
 
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/serverless-models" element={<ServerlessModels />} />
                 <Route path="/billing" element={<Billing />} />
                 <Route path="/invite/:inviteToken" element={<InviteAccept />} />
+                <Route path="/instances" element={<Instances />} />
               </Routes>
             </Content>
           </Layout>
