@@ -15,7 +15,7 @@ interface Team {
   role: 'owner' | 'admin' | 'member';
 }
 
-// CSS样式定义
+// CSS style definition
 const instanceSelectStyles = `
   .instance-ownership-select .ant-select-selection-item {
     display: flex !important;
@@ -122,15 +122,15 @@ const instanceSelectStyles = `
 `;
 
 const Instances: React.FC = () => {
-  // 添加样式到页面
+  // Add styles to the page
   useEffect(() => {
-    // 添加CSS样式到页面
+    // Add CSS styles to the page
     const styleElement = document.createElement('style');
     styleElement.type = 'text/css';
     styleElement.innerHTML = instanceSelectStyles;
     document.head.appendChild(styleElement);
 
-    // 清理函数
+    // Cleanup function
     return () => {
       document.head.removeChild(styleElement);
     };
@@ -152,7 +152,7 @@ const Instances: React.FC = () => {
     name: 'Current User'
   });
 
-  // 添加位置状态
+  // Add location state
   const [selectedLocation, setSelectedLocation] = useState<string>('us');
 
   // Load instances across all teams
@@ -179,13 +179,13 @@ const Instances: React.FC = () => {
         ];
         setTeams(mockTeams);
   
-        // 默认选择个人实例
+        // Default select personal instance
         setSelectedTeam('personal');
         
-        // 立即设置表单值，确保显示正确
+        // Immediately set form values to ensure correct display
         form.setFieldsValue({ team: 'personal' });
         
-        // 设置默认位置
+        // Set default location
         setSelectedLocation('us');
         form.setFieldsValue({ location: 'us' });
         
@@ -194,7 +194,7 @@ const Instances: React.FC = () => {
         // Create mock instances data for testing, passing current user email
         createMockInstances(currentUser.email);
 
-        // 加载所有实例
+        // Load all instances
         await loadInstances();
       } catch (error) {
         console.error('Error loading data:', error);
@@ -341,7 +341,7 @@ const Instances: React.FC = () => {
     );
   };
 
-  // 在renderLocationOptions函数中添加选择逻辑
+  // Add selection logic in renderLocationOptions function
   const renderLocationOptions = () => {
     const locations = [
       { value: 'us', label: 'US', flag: '🇺🇸' },
@@ -383,14 +383,14 @@ const Instances: React.FC = () => {
     );
   };
 
-  // 处理所有权更改
+  // Handle ownership change
   const handleOwnershipChange = (value: string) => {
     if (value === 'personal') {
       setSelectedTeam('personal');
       form.setFieldsValue({ team: 'personal' });
     } else if (teams.find(t => t.id === value)) {
       const team = teams.find(t => t.id === value);
-      // 检查权限
+      // Check permissions
       if (team && (team.role === 'owner' || team.role === 'admin')) {
         setSelectedTeam(value);
         form.setFieldsValue({ team: value });
@@ -422,7 +422,7 @@ const Instances: React.FC = () => {
           </Button>
         </div>
         
-        {/* 添加 Instance Ownership 部分 */}
+        {/* Add Instance Ownership section */}
         <Card 
           style={{ 
             background: '#1a1a1a', 
@@ -473,7 +473,7 @@ const Instances: React.FC = () => {
               dropdownMatchSelectWidth={false}
               popupClassName="change-dropdown"
               onDropdownVisibleChange={(open) => {
-                // 如果下拉菜单关闭了，重置回"Change"显示状态
+                // If dropdown menu is closed, reset back to "Change" display state
                 if (!open) {
                   setTimeout(() => {
                     const selectElement = document.querySelector('.change-dropdown .ant-select-selection-item');
@@ -525,7 +525,7 @@ const Instances: React.FC = () => {
             team: 'personal',
           }}
         >
-          {/* 隐藏表单中的Team Selection，因为已经在上方显示了 */}
+          {/* Hide Team Selection in the form because it's already shown above */}
           <Form.Item
             name="team"
             hidden={true}
@@ -533,7 +533,7 @@ const Instances: React.FC = () => {
             <Input />
           </Form.Item>
           
-          {/* 添加位置选择 */}
+          {/* Add location selection */}
           <Form.Item
             label={<span style={{ color: '#ffffff', fontSize: '16px' }}>Location</span>}
             name="location"
@@ -627,7 +627,7 @@ const Instances: React.FC = () => {
   if (hasInstances) {
     return (
       <div style={{ background: '#141414', minHeight: '100vh', padding: '0 0 20px 0' }}>
-        {/* 顶部标题栏 */}
+        {/* Top title bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', borderBottom: '1px solid #303030' }}>
           <Title level={3} style={{ margin: 0, color: '#ffffff' }}>Instances</Title>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -652,7 +652,7 @@ const Instances: React.FC = () => {
           </div>
         </div>
         
-        {/* 实例列表 */}
+        {/* Instance list */}
         <div style={{ padding: '0 20px' }}>
           <InstanceList instances={instances} onRefresh={loadInstances} currentUser={currentUser.email} />
         </div>
@@ -741,7 +741,7 @@ const Instances: React.FC = () => {
                     <span style={{ color: 'rgba(255, 255, 255, 0.85)', fontWeight: 'bold' }}>Team Instances:</span>
                   </Option>
                   {teams.map(team => {
-                    // 检查是否有权限创建实例
+                    // Check if user has permission to create instances
                     const hasPermission = team.role === 'owner' || team.role === 'admin';
                     const roleColor = team.role === 'owner' ? 'gold' : team.role === 'admin' ? 'blue' : 'green';
                     
@@ -796,7 +796,7 @@ const Instances: React.FC = () => {
               if (selectedTeam === 'personal' || (selectedTeam && teams.find(t => t.id === selectedTeam))) {
                 // Show the form instead of the welcome screen
                 setCreatingInstance(true);
-                // 确保表单能获取到正确的选择值
+                // Ensure the form gets the correct selected value
                 form.setFieldsValue({ team: selectedTeam });
               } else {
                 message.warning('Please select personal or team ownership');
@@ -831,7 +831,7 @@ const Instances: React.FC = () => {
         </Title>
       </div>
       
-      {/* 添加 Instance Ownership 部分 */}
+      {/* Add Instance Ownership section */}
       <Card 
         style={{ 
           background: '#1a1a1a', 
@@ -882,7 +882,7 @@ const Instances: React.FC = () => {
             dropdownMatchSelectWidth={false}
             popupClassName="change-dropdown"
             onDropdownVisibleChange={(open) => {
-              // 如果下拉菜单关闭了，重置回"Change"显示状态
+              // If dropdown menu is closed, reset back to "Change" display state
               if (!open) {
                 setTimeout(() => {
                   const selectElement = document.querySelector('.change-dropdown .ant-select-selection-item');
@@ -934,7 +934,7 @@ const Instances: React.FC = () => {
           team: 'personal',
         }}
       >
-        {/* 隐藏表单中的Team Selection，因为已经在上方显示了 */}
+        {/* Hide Team Selection in the form because it's already shown above */}
         <Form.Item
           name="team"
           hidden={true}
@@ -942,7 +942,7 @@ const Instances: React.FC = () => {
           <Input />
         </Form.Item>
         
-        {/* 添加位置选择 */}
+        {/* Add location selection */}
         <Form.Item
           label={<span style={{ color: '#ffffff', fontSize: '16px' }}>Location</span>}
           name="location"
@@ -1032,4 +1032,4 @@ const Instances: React.FC = () => {
   );
 };
 
-export default Instances; 
+export default Instances;

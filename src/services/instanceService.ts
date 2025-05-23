@@ -402,4 +402,107 @@ export const createMockInstances = (currentUserEmail: string = 'user@example.com
   }
   
   console.log('[InstanceService] Created', Object.keys(instances).length, 'mock instances');
+};
+
+/**
+ * Get all instances for a team with members info
+ */
+export const getTeamInstancesWithMemberInfo = async (teamId: string): Promise<InstanceData[]> => {
+  console.log('[InstanceService] Getting instances for team with member info:', teamId);
+  
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Filter instances by team ID
+  const teamInstances = Object.values(instances).filter(instance => instance.teamId === teamId);
+  console.log('[InstanceService] Found team instances:', teamInstances.length);
+  
+  // For team instances we need to ensure creator information is populated
+  // In real app this would be handled by the backend join query
+  return teamInstances;
+};
+
+/**
+ * Create mock instances specifically for team usage demonstration
+ */
+export const createMockTeamInstances = (
+  teamId: string,
+  teamName: string,
+  teamMembers: Array<{
+    id: string;
+    email: string;
+    role: 'owner' | 'admin' | 'member';
+    name?: string;
+  }>
+): void => {
+  console.log('[InstanceService] Creating mock team instances for team:', teamId);
+  
+  // Create instances for different team members with different statuses
+  const gpuTypes = ['a100', 'h100', 'l4'];
+  const locations = ['us', 'norway', 'canada'];
+  const statusOptions = ['running', 'stopped', 'terminated'];
+  
+  // Create a mix of instances for each team member
+  teamMembers.forEach((member, index) => {
+    // Create 1-3 instances per member
+    const count = Math.floor(Math.random() * 3) + 1;
+    
+    for (let i = 0; i < count; i++) {
+      const instanceId = generateInstanceId();
+      const gpuType = gpuTypes[Math.floor(Math.random() * gpuTypes.length)];
+      const gpuCount = Math.floor(Math.random() * 4) + 1; // 1-4 GPUs
+      const status = statusOptions[Math.floor(Math.random() * (statusOptions.length - 1))]; // Exclude terminated for most
+      
+      // Create date between 1-30 days ago
+      const daysAgo = Math.floor(Math.random() * 30) + 1;
+      const createdAt = new Date();
+      createdAt.setDate(createdAt.getDate() - daysAgo);
+      
+      // Calculate mock usage metrics
+      const hourlyRate = gpuType === 'a100' ? 1.99 * gpuCount : 
+                         gpuType === 'h100' ? 3.49 * gpuCount : 0.59 * gpuCount;
+      const hoursRun = status === 'terminated' ? Math.random() * 24 : Math.random() * 24 * daysAgo;
+      const totalCost = hourlyRate * hoursRun;
+      
+      // Generate location
+      const location = locations[Math.floor(Math.random() * locations.length)];
+      let region: string;
+      switch (location) {
+        case 'us':
+          region = 'us-west-2';
+          break;
+        case 'norway':
+          region = 'eu-north-1';
+          break;
+        case 'canada':
+          region = 'ca-central-1';
+          break;
+        default:
+          region = 'us-west-2';
+      }
+      
+      // Create instance
+      instances[instanceId] = {
+        id: instanceId,
+        name: `${member.role}-${gpuType}-${i + 1}`,
+        teamId,
+        teamName,
+        createdBy: member.email,
+        creatorRole: member.role,
+        creatorName: member.name || member.email,
+        createdAt,
+        status: status as 'creating' | 'running' | 'stopped' | 'terminated',
+        gpuType,
+        gpuCount,
+        storageSize: 100 + (Math.floor(Math.random() * 9) * 100), // 100-900 GB
+        region,
+        ipAddress: status === 'running' ? `192.168.${Math.floor(Math.random() * 254) + 1}.${Math.floor(Math.random() * 254) + 1}` : undefined,
+        hourlyRate,
+        totalHours: hoursRun,
+        totalCost
+      };
+    }
+  });
+  
+  console.log('[InstanceService] Created mock team instances successfully');
 }; 

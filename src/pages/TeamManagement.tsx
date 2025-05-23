@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Card, Tabs, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typography, Divider, Checkbox, Row, Col, DatePicker, Statistic, Tooltip, Radio } from 'antd';
+import { Card, Tabs, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typography, Divider, Checkbox, Row, Col, DatePicker, Statistic, Tooltip, Radio, Spin } from 'antd';
 import ModelUsageDetailModal from '../components/ModelUsageDetailModal';
 import type { RadioChangeEvent } from 'antd';
 import dayjs from 'dayjs';
@@ -32,10 +32,18 @@ import {
   BarChartOutlined,
   PieChartOutlined,
   LineChartOutlined,
-  UserSwitchOutlined
+  UserSwitchOutlined,
+  DesktopOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { createInvitation, sendInvitationEmail } from '../services/invitationService';
+import TeamInstanceList from '../components/TeamInstanceList';
+import { 
+  getTeamInstancesWithMemberInfo, 
+  createMockTeamInstances, 
+  InstanceData,
+  updateInstanceStatus 
+} from '../services/instanceService';
 
 interface TeamMember {
   id: string;
@@ -263,6 +271,10 @@ const TeamManagement: React.FC = () => {
   const [selectedModelData, setSelectedModelData] = useState<any>(null);
   const [selectedPermissionPackage, setSelectedPermissionPackage] = useState<string>('custom');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [teamInstances, setTeamInstances] = useState<InstanceData[]>([]);
+  const [instancesLoading, setInstancesLoading] = useState<boolean>(false);
+  const [mockData] = useState<boolean>(true); // Set to true to generate mock data
+  const [currentUserEmail] = useState<string>('user@example.com'); // Current user's email
 
   // 模拟团队数据
   const [team, setTeam] = useState<Team>({ // Changed to useState with setTeam
@@ -1861,6 +1873,34 @@ const TeamManagement: React.FC = () => {
     },
   ];
 
+  // Fetch team instances
+  const fetchTeamInstances = useCallback(async () => {
+    if (!teamId) return;
+    
+    setInstancesLoading(true);
+    try {
+      const instances = await getTeamInstancesWithMemberInfo(teamId);
+      setTeamInstances(instances);
+    } catch (error) {
+      console.error('Failed to fetch team instances:', error);
+      message.error('Failed to load team instances');
+    } finally {
+      setInstancesLoading(false);
+    }
+  }, [teamId]);
+
+  // Load team instances when team data is loaded
+  useEffect(() => {
+    if (team.id && team.members.length > 0) {
+      // Create mock instances if none exist
+      if (mockData) {
+        createMockTeamInstances(team.id, team.name, team.members);
+      }
+      
+      fetchTeamInstances();
+    }
+  }, [team.id, team.members, mockData, fetchTeamInstances]);
+
   return (
     <Card style={{ background: '#141414', border: '1px solid #303030' }} className="team-management-card">
       <Space style={{ marginBottom: 16 }}>
@@ -1936,6 +1976,38 @@ const TeamManagement: React.FC = () => {
                 <Button danger onClick={handleTransferOwnership}>Transfer Ownership</Button>
               </div>
             </Space>
+          </div>
+        </TabPane>
+        <TabPane
+          tab={
+            <span>
+              <DesktopOutlined />
+              Instances
+            </span>
+          }
+          key="instances"
+        >
+          <div>
+            <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
+              Team Instances
+              <Tooltip title="All GPU instances created by team members">
+                <InfoCircleOutlined style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.45)' }} />
+              </Tooltip>
+            </Typography.Title>
+            
+            {instancesLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                <Spin size="large" />
+              </div>
+            ) : (
+              <TeamInstanceList 
+                instances={teamInstances}
+                teamMembers={team.members}
+                currentUserRole={team.currentUserRole}
+                currentUserEmail={currentUserEmail}
+                onRefresh={fetchTeamInstances}
+              />
+            )}
           </div>
         </TabPane>
         <TabPane

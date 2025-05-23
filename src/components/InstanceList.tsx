@@ -637,7 +637,34 @@ const InstanceList: React.FC<InstanceListProps> = ({ instances, onRefresh, curre
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div>
           <Space>
-            <Button type="primary">Deploy</Button>
+            <Button 
+              type="primary"
+              onClick={() => {
+                // 导航到实例页面并显示创建表单
+                const navigate = window.location.pathname === '/instances' 
+                  ? (newState: any) => {
+                      // 如果已经在实例页面，使用自定义函数通知父组件
+                      if (typeof window.setInstanceCreating === 'function') {
+                        window.setInstanceCreating(true);
+                      }
+                    }
+                  : require('react-router-dom').useNavigate();
+                
+                if (typeof navigate === 'function') {
+                  if (window.location.pathname !== '/instances') {
+                    navigate('/instances', { 
+                      state: { 
+                        creatingInstance: true 
+                      } 
+                    });
+                  } else {
+                    navigate({ creatingInstance: true });
+                  }
+                }
+              }}
+            >
+              Deploy
+            </Button>
             <div style={{ display: 'flex', alignItems: 'center', marginLeft: '16px' }}>
               <input 
                 type="checkbox" 
@@ -751,4 +778,4 @@ const InstanceList: React.FC<InstanceListProps> = ({ instances, onRefresh, curre
   );
 };
 
-export default InstanceList; 
+export default InstanceList;

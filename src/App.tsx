@@ -12,6 +12,7 @@ import InviteAccept from './pages/InviteAccept';
 import Billing from './pages/Billing';
 import InviteMember from './pages/InviteMember';
 import Instances from './pages/Instances';
+import FirstTimeInstanceView from './pages/FirstTimeInstanceView';
 import { darkTheme } from './theme/darkTheme';
 import './App.less';
 
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/billing" element={<Billing />} />
                 <Route path="/invite/:inviteToken" element={<InviteAccept />} />
                 <Route path="/instances" element={<Instances />} />
+                <Route path="/empty-instance" element={<FirstTimeInstanceView />} />
               </Routes>
             </Content>
           </Layout>
