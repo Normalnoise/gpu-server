@@ -63,8 +63,9 @@ interface TeamApiKey {
   key: string;
   createdAt: string;
   createdBy: string;
-  status: 'active' | 'disabled';
+  status: 'active' | 'disabled'; // This might be redundant if we use balance check
   lastUsed?: string;
+  // No ownerType/ownerId needed here as these keys belong to the current team
 }
 
 interface Team {
@@ -74,6 +75,7 @@ interface Team {
   members: TeamMember[];
   currentUserRole: 'owner' | 'admin' | 'member';
   apiKeys: TeamApiKey[];
+  balance?: number; // Added team balance
 }
 
 interface UsageRecord {
@@ -259,6 +261,7 @@ const TeamManagement: React.FC = () => {
   const [form] = Form.useForm();
   const [apiKeyForm] = Form.useForm();
   const [apiKeyVisibility, setApiKeyVisibility] = useState<Record<string, boolean>>({});
+  const [regenerateApiKeyLoading, setRegenerateApiKeyLoading] = useState<string | null>(null); // Added for regenerate loading state
   const [usageFilter, setUsageFilter] = useState<string>('team');
   const [modelFilter, setModelFilter] = useState<string>('all');
   const [chartType, setChartType] = useState<string>('spend');
@@ -282,6 +285,7 @@ const TeamManagement: React.FC = () => {
     name: 'ML Development',
     description: 'Machine Learning Development Team',
     currentUserRole: 'owner', // Changed from 'admin' to 'owner'
+    balance: 0, // Mock balance, set to 0 to test disabled state, or > 0 for active
     members: [
       { id: '1', email: 'owner@example.com', role: 'owner', status: 'active', invitedAt: '2024-04-01', invitedBy: 'System', permissions: ['create_inference_api_key', 'create_storage_secret_key', 'manage_billing'], isCurrentUser: true }, // Added isCurrentUser: true
       { id: '2', email: 'admin@example.com', role: 'admin', status: 'active', invitedAt: '2024-04-01', invitedBy: 'owner@example.com', permissions: ['create_inference_api_key', 'create_storage_secret_key'] }, // Removed isCurrentUser: true
@@ -1030,6 +1034,21 @@ const TeamManagement: React.FC = () => {
     }));
   };
 
+  // Check if team balance is sufficient
+  const checkTeamHasSufficientBalance = (): boolean => {
+    // In a real app, this would come from fetched team data or props
+    return (team?.balance || 0) > 0;
+  };
+
+  // Renamed from formatApiKey to avoid potential conflicts if another formatApiKey exists elsewhere.
+  const formatTeamApiKeyDisplay = (key: string, isVisible: boolean) => {
+    if (isVisible) {
+      return key;
+    }
+    // Show first 6 characters and last 4 characters, replace middle with ••••
+    return `${key.substring(0, 6)}${'•'.repeat(20)}${key.substring(key.length - 4)}`;
+  };
+
   // 格式化API密钥显示
   const formatApiKey = (key: string, isVisible: boolean) => {
     if (isVisible) {
@@ -1522,9 +1541,19 @@ const TeamManagement: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       width: '20%',
-      render: (name: string) => (
-        <Text style={{ color: '#ffffff' }}>{name}</Text>
-      ),
+      render: (name: string, record: TeamApiKey) => {
+        const isKeyDisabled = !checkTeamHasSufficientBalance();
+        return (
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            <Text style={{ color: '#ffffff' }}>{name}</Text>
+            {isKeyDisabled && (
+              <Tag color="red" style={{ marginLeft: 8 }}>
+                Disabled
+              </Tag>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: () => (
@@ -1535,19 +1564,27 @@ const TeamManagement: React.FC = () => {
       ),
       dataIndex: 'key',
       key: 'key',
-      width: '25%',
+      width: '30%', // Adjusted width for better layout
       render: (key: string, record: TeamApiKey) => {
         const isVisible = apiKeyVisibility[record.id] || false;
+        const isKeyDisabled = !checkTeamHasSufficientBalance();
         return (
-          <Space>
-            <Text style={{ color: '#ffffff', fontFamily: 'monospace' }}>
-              {formatApiKey(key, isVisible)}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Text style={{
+              color: isKeyDisabled ? '#999999' : '#ffffff',
+              fontFamily: 'monospace',
+              flex: 1,
+              textDecoration: isKeyDisabled ? 'line-through' : undefined
+            }}>
+              {formatTeamApiKeyDisplay(key, isVisible)}
             </Text>
             <Button
               type="text"
               icon={isVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
               onClick={() => toggleApiKeyVisibility(record.id)}
               title={isVisible ? "Hide API Key" : "Show API Key"}
+              style={{ marginLeft: 8, color: isKeyDisabled ? '#999999' : undefined }}
+              disabled={isKeyDisabled}
             />
             <Button
               type="text"
@@ -1557,8 +1594,10 @@ const TeamManagement: React.FC = () => {
                 message.success('API Key copied to clipboard');
               }}
               title="Copy API Key"
+              style={{ marginLeft: 4, color: isKeyDisabled ? '#999999' : undefined }}
+              disabled={isKeyDisabled}
             />
-          </Space>
+          </div>
         );
       },
     },
@@ -1613,11 +1652,21 @@ const TeamManagement: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       width: '10%',
-      render: (status: string) => (
-        <Tag color={status === 'active' ? 'green' : 'red'}>
-          {status === 'active' ? 'Active' : 'Disabled'}
-        </Tag>
-      ),
+      render: (status: string, record: TeamApiKey) => {
+        const isKeyDisabledByBalance = !checkTeamHasSufficientBalance();
+        if (isKeyDisabledByBalance) {
+          return (
+            <Tooltip title="Team account has insufficient balance. API key functionality is limited.">
+              <Tag color="red">Disabled</Tag>
+            </Tooltip>
+          );
+        }
+        return (
+          <Tag color={record.status === 'active' ? 'green' : 'volcano'}>
+            {record.status === 'active' ? 'Active' : 'Inactive'}
+          </Tag>
+        );
+      },
     },
     {
       title: () => (
@@ -1626,27 +1675,91 @@ const TeamManagement: React.FC = () => {
         </Text>
       ),
       key: 'action',
-      width: '10%',
+      width: '15%', // Adjusted width
       align: 'right',
-      render: (_: any, record: TeamApiKey) => (
-        <Space>
-          <Button
-            type="text"
-            icon={record.status === 'active' ? <CloseCircleOutlined style={{ color: '#ff4d4f' }} /> : <CheckCircleOutlined style={{ color: '#52c41a' }} />}
-            onClick={() => handleToggleApiKeyStatus(record.id, record.status, record.name)}
-            title={record.status === 'active' ? 'Disable API Key' : 'Enable API Key'}
-          />
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDeleteApiKey(record.id, record.name)}
-            title="Delete API Key"
-          />
-        </Space>
-      ),
+      render: (_: any, record: TeamApiKey) => {
+        const isKeyDisabledByBalance = !checkTeamHasSufficientBalance();
+        if (isKeyDisabledByBalance) {
+          return (
+            <Tooltip title="Please contact team administrator to recharge before using.">
+              <Button 
+                type="text" 
+                danger
+                onClick={() => message.warning('Please contact team administrator to recharge before using.')}
+              >
+                Contact for Recharge
+              </Button>
+            </Tooltip>
+          );
+        }
+        return (
+          <Space>
+            <Tooltip title="Regenerate API Key">
+              <Button 
+                type="text" 
+                icon={<ReloadOutlined />} 
+                onClick={() => handleRegenerateApiKey(record)}
+                loading={regenerateApiKeyLoading === record.id}
+                className="regenerate-btn"
+              >
+                Regenerate
+              </Button>
+            </Tooltip>
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDeleteApiKey(record.id, record.name)}
+              title="Delete API Key"
+            />
+          </Space>
+        );
+      },
     },
   ];
+
+  const handleRegenerateApiKey = (apiKeyToRegenerate: TeamApiKey) => {
+    confirm({
+      title: 'Regenerate API Key',
+      icon: <ExclamationCircleOutlined style={{ color: '#faad14' }} />,
+      content: 'Are you sure you want to regenerate this API key? The current key will be invalidated immediately.',
+      async onOk() {
+        setRegenerateApiKeyLoading(apiKeyToRegenerate.id);
+        // Mock API call for regeneration
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+        const newKey = `sk-team-${Math.random().toString(36).substring(2, 12)}${Math.random().toString(36).substring(2, 12)}`;
+        
+        setTeam(prevTeam => {
+          if (!prevTeam) return prevTeam;
+          return {
+            ...prevTeam,
+            apiKeys: prevTeam.apiKeys.map(ak => 
+              ak.id === apiKeyToRegenerate.id ? { ...ak, key: newKey, status: 'active', lastUsed: undefined } : ak
+            ),
+          };
+        });
+        setRegenerateApiKeyLoading(null);
+        
+        Modal.success({
+          title: 'API Key Regenerated Successfully',
+          content: (
+            <div>
+              <Paragraph>Your new API key has been generated. Please copy it now, as it will not be shown again:</Paragraph>
+              <Text code copyable={{text: newKey}} style={{ wordBreak: 'break-all', display: 'block', background: '#f0f2f5', padding: '8px', borderRadius: '4px', color: '#333' }}>
+                {newKey}
+              </Text>
+            </div>
+          ),
+          width: 580,
+          okText: 'Close',
+        });
+      },
+      onCancel() {
+        setRegenerateApiKeyLoading(null);
+        console.log('API key regeneration cancelled');
+      },
+    });
+  };
 
   const activeMembers = team.members.filter(m => m.status === 'active');
   const pendingMembers = team.members.filter(m => m.status === 'pending');

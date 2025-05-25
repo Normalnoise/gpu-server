@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Form, Input, Select, InputNumber, Space, Tooltip, Radio, Divider, Alert, Tag, message } from 'antd';
 import { DeploymentUnitOutlined, CloudServerOutlined, InfoCircleOutlined, TeamOutlined, PlusOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { createInstance, getTeamInstances, getAllInstances, createMockInstances, InstanceData } from '../services/instanceService';
 import InstanceList from '../components/InstanceList';
 
@@ -137,6 +137,7 @@ const Instances: React.FC = () => {
   }, []);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [form] = Form.useForm();
   const [hasInstances, setHasInstances] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -144,7 +145,18 @@ const Instances: React.FC = () => {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [selectedGpuType, setSelectedGpuType] = useState<string>('a100');
   const [instances, setInstances] = useState<InstanceData[]>([]);
-  const [creatingInstance, setCreatingInstance] = useState<boolean>(false);
+  const [creatingInstance, setCreatingInstance] = useState<boolean>(
+    location.state?.creatingInstance || false
+  );
+  
+  // Handle location state changes
+  useEffect(() => {
+    if (location.state?.creatingInstance) {
+      setCreatingInstance(true);
+      // Clear the state to prevent re-triggering on re-renders
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate]);
 
   // Mock user information - in a real app, this would come from authentication context
   const [currentUser] = useState({
