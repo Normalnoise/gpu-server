@@ -59,41 +59,31 @@ const TeamInstanceList: React.FC<TeamInstanceListProps> = ({
   const [searchText, setSearchText] = useState<string>('');
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
-  // Calculate summary statistics
+  // Calculate summary statistics based on Member and Date filters
   const summary = React.useMemo(() => {
     let totalInstances = 0;
     let runningInstances = 0;
     let totalCost = 0;
 
-    // Apply filters except date range for counting
-    const filteredForCounting = instances.filter(instance => {
+    instances.forEach(instance => {
       // Apply member filter
       if (memberFilter !== 'all' && instance.createdBy !== memberFilter) {
-        return false;
+        return;
       }
 
-      // Apply status filter
-      if (statusFilter !== 'all' && instance.status !== statusFilter) {
-        return false;
+      // Apply date range filter
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        const instanceDate = dayjs(instance.createdAt);
+        if (instanceDate.isBefore(dateRange[0], 'day') || instanceDate.isAfter(dateRange[1], 'day')) {
+          return;
+        }
       }
-
-      // Apply search text
-      if (searchText && !instance.name.toLowerCase().includes(searchText.toLowerCase())) {
-        return false;
-      }
-
-      // Count all instances regardless of date for the total
-      totalInstances++;
       
-      // Count running instances
+      totalInstances++;
       if (instance.status === 'running') {
         runningInstances++;
       }
-
-      // Sum up costs
       totalCost += instance.totalCost;
-
-      return true;
     });
 
     return {
@@ -101,9 +91,9 @@ const TeamInstanceList: React.FC<TeamInstanceListProps> = ({
       running: runningInstances,
       cost: totalCost.toFixed(2)
     };
-  }, [instances, memberFilter, statusFilter, searchText]);
+  }, [instances, memberFilter, dateRange]);
 
-  // Filter instances based on selected filters
+  // Filter instances for the table based on ALL filters
   const filteredInstances = React.useMemo(() => {
     return instances.filter(instance => {
       // Apply member filter
@@ -359,6 +349,36 @@ const TeamInstanceList: React.FC<TeamInstanceListProps> = ({
 
   return (
     <div>
+      {/* Top Filters (Member and Date Range) */}
+      <Space wrap style={{ marginBottom: '16px', width: '100%', alignItems: 'center' }} size={12}>
+        <Text strong style={{ color: 'white' }}>Member:</Text>
+        <Select
+          placeholder="Team Member"
+          style={{ width: 180 }}
+          value={memberFilter}
+          onChange={setMemberFilter}
+        >
+          <Option value="all">All</Option>
+          {teamMembers.map(member => {
+            const displayName = member.name ? `${member.name} (${member.email})` : member.email;
+            return (
+              <Option key={member.id} value={member.email}>
+                {displayName} {member.isCurrentUser && '(You)'}
+              </Option>
+            );
+          })}
+        </Select>
+        
+        <Text strong style={{ color: 'white' }}>Date Range:</Text>
+        <RangePicker 
+          value={dateRange}
+          onChange={(dates) => setDateRange(dates)}
+          style={{ width: 230 }}
+          className="dark-theme-rangepicker"
+          popupClassName="dark-theme-rangepicker-popup"
+        />
+      </Space>
+
       {/* Summary Stats */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={8}>
@@ -394,47 +414,23 @@ const TeamInstanceList: React.FC<TeamInstanceListProps> = ({
         </Col>
       </Row>
 
-      {/* Filter Bar */}
-      <div className="filter-bar">
-        <Text strong style={{ color: 'white' }}>Filter:</Text>
-        
-        {/* Team Member Filter */}
-        <Select
-          placeholder="Team Member"
-          style={{ width: 180 }}
-          value={memberFilter}
-          onChange={setMemberFilter}
-        >
-          <Option value="all">All Members</Option>
-          {teamMembers.map(member => (
-            <Option key={member.id} value={member.email}>
-              {member.name || member.email} {member.isCurrentUser && '(You)'}
-            </Option>
-          ))}
-        </Select>
-        
-        {/* Status Filter */}
+      {/* Bottom Filter Bar (Status, Search, Refresh) */}
+      <div className="filter-bar" style={{ alignItems: 'center' }}>
+        <Text strong style={{ color: 'white' }}>Status:</Text>
         <Select
           placeholder="Status"
           style={{ width: 140 }}
           value={statusFilter}
           onChange={setStatusFilter}
         >
-          <Option value="all">All Status</Option>
+          <Option value="all">All</Option>
           <Option value="creating">Creating</Option>
           <Option value="running">Running</Option>
           <Option value="stopped">Stopped</Option>
           <Option value="terminated">Terminated</Option>
         </Select>
         
-        {/* Date Range Filter */}
-        <RangePicker 
-          value={dateRange}
-          onChange={(dates) => setDateRange(dates)}
-          style={{ width: 230 }}
-        />
-        
-        {/* Search */}
+        <Text strong style={{ color: 'white' }}>Name:</Text>
         <Input
           placeholder="Search by name"
           prefix={<SearchOutlined />}
@@ -443,7 +439,6 @@ const TeamInstanceList: React.FC<TeamInstanceListProps> = ({
           onChange={e => setSearchText(e.target.value)}
         />
         
-        {/* Refresh Button */}
         <Button 
           icon={<ReloadOutlined />} 
           onClick={onRefresh}

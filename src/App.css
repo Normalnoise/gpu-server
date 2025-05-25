@@ -1,0 +1,247 @@
+/* General styles for antd dark theme date pickers if not already globally handled */
+.ant-picker-panel-container {
+  background-color: #1f1f1f !important; /* Dark background for picker panel */
+}
+
+.ant-picker-panel {
+  background-color: transparent !important;
+}
+
+.ant-picker-header,
+.ant-picker-header button {
+  color: rgba(255, 255, 255, 0.85) !important; /* Light text for header and buttons */
+  border-bottom: 1px solid #303030 !important;
+}
+
+.ant-picker-header button:hover {
+  color: #1890ff !important;
+}
+
+.ant-picker-content th {
+  color: rgba(255, 255, 255, 0.65) !important; /* Light text for day names */
+}
+
+.ant-picker-cell,
+.ant-picker-date-panel .ant-picker-cell-in-view .ant-picker-cell-inner,
+.ant-picker-year-panel .ant-picker-cell-inner,
+.ant-picker-month-panel .ant-picker-cell-inner,
+.ant-picker-decade-panel .ant-picker-cell-inner {
+  color: rgba(255, 255, 255, 0.65) !important; /* Light text for dates */
+}
+
+.ant-picker-cell:hover .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  background-color: #262626 !important; /* Slightly lighter background for hover/today */
+  color: #1890ff !important;
+  border: 1px solid #1890ff !important;
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner .ant-picker-calendar-date-value,
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner .ant-picker-calendar-date-value,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner .ant-picker-calendar-date-value {
+  background-color: #1890ff !important; /* Blue background for selected dates/range */
+  color: #ffffff !important; /* White text for selected dates */
+}
+
+.ant-picker-cell-disabled .ant-picker-cell-inner {
+  color: rgba(255, 255, 255, 0.25) !important; /* Dimmed text for disabled dates */
+  background: transparent !important;
+}
+
+.ant-picker-cell-range-hover-start:not(.ant-picker-cell-in-view):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end) > .ant-picker-cell-inner,
+.ant-picker-cell-range-hover-end:not(.ant-picker-cell-in-view):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end) > .ant-picker-cell-inner,
+.ant-picker-cell-range-hover:not(.ant-picker-cell-in-view) > .ant-picker-cell-inner {
+    background: #2c3e50 !important; /* Hover effect for range selection */
+}
+
+
+.ant-picker-cell-range-start:not(.ant-picker-cell-range-start-single)::before,
+.ant-picker-cell-range-end:not(.ant-picker-cell-range-end-single)::before {
+    background-color: #2c3e50 !important; /* Range selection background color */
+}
+
+.ant-picker-cell.ant-picker-cell-in-view.ant-picker-cell-in-range.ant-picker-cell-range-hover::before,
+.ant-picker-cell.ant-picker-cell-in-view.ant-picker-cell-in-range.ant-picker-cell-range-hover-start::before,
+.ant-picker-cell.ant-picker-cell-in-view.ant-picker-cell-in-range.ant-picker-cell-range-hover-end::before {
+    background-color: #2c3e50 !important; /* Range hover state */
+}
+
+
+.ant-picker-cell-in-view.ant-picker-cell-in-range .ant-picker-cell-inner {
+    background-color: #223344 !important; /* Darker blue background for dates within the selected range */
+    color: rgba(255, 255, 255, 0.9) !important; /* High-contrast light text */
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-in-range .ant-picker-cell-inner .ant-picker-calendar-date-value {
+    color: rgba(255, 255, 255, 0.9) !important; /* Explicitly target the date value if nested */
+}
+
+/* Specific styles for our custom classed RangePicker popup */
+.dark-theme-rangepicker-popup .ant-picker-panel-container {
+  background-color: #141414 !important; /* Even darker for specific popup if needed */
+}
+
+.dark-theme-rangepicker-popup .ant-picker-header {
+  border-bottom-color: #424242 !important; /* Darker border for header */
+}
+
+.dark-theme-rangepicker-popup .ant-picker-footer {
+  border-top: 1px solid #424242 !important; /* Darker border for footer */
+}
+
+.dark-theme-rangepicker-popup .ant-picker-ok button {
+  color: #ffffff !important;
+  background-color: #1890ff !important;
+  border-color: #1890ff !important;
+}
+.dark-theme-rangepicker-popup .ant-picker-ok button:hover {
+  background-color: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+/* Styles for the input field itself if needed, complementing inline styles */
+.dark-theme-rangepicker.ant-picker {
+  background: #1a1a1a !important;
+  border-color: #303030 !important;
+}
+.dark-theme-rangepicker.ant-picker .ant-picker-input > input {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.dark-theme-rangepicker.ant-picker .ant-picker-input > input::placeholder {
+  color: #00FF00 !important; /* Bright green for debugging */
+  -webkit-text-fill-color: #00FF00 !important; /* Ensure WebKit browsers apply the color */
+  opacity: 1 !important; /* Ensure placeholder is fully opaque */
+}
+
+/* Adding prefixed versions for comprehensive debugging, though ::placeholder is standard */
+.dark-theme-rangepicker.ant-picker .ant-picker-input > input::-webkit-input-placeholder {
+  color: #00FF00 !important;
+  -webkit-text-fill-color: #00FF00 !important;
+  opacity: 1 !important;
+}
+
+.dark-theme-rangepicker.ant-picker .ant-picker-input > input::-moz-placeholder { /* Firefox 19+ */
+  color: #00FF00 !important;
+  opacity: 1 !important;
+}
+
+.dark-theme-rangepicker.ant-picker .ant-picker-input > input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #00FF00 !important;
+  opacity: 1 !important;
+}
+
+.dark-theme-rangepicker.ant-picker .ant-picker-input > input::-ms-input-placeholder { /* Microsoft Edge */
+  color: #00FF00 !important;
+  opacity: 1 !important;
+}
+
+.dark-theme-rangepicker.ant-picker .ant-picker-range-separator .ant-picker-separator,
+.dark-theme-rangepicker.ant-picker .ant-picker-suffix .anticon {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.dark-theme-rangepicker.ant-picker:hover {
+  border-color: #1890ff !important;
+}
+
+.dark-theme-rangepicker.ant-picker-focused {
+  border-color: #1890ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+/* Team Management Page */
+.team-management-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.team-management-tabs .ant-tabs-nav {
+  margin-bottom: 24px;
+}
+
+.team-management-tabs .ant-tabs-tab {
+  padding: 12px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.team-management-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  color: #1890ff;
+}
+
+.team-management-tabs .ant-tabs-ink-bar {
+  background: #1890ff;
+}
+
+.members-table {
+  background: transparent;
+}
+
+.members-table .ant-table-thead > tr > th {
+  background: #141414;
+  color: #ffffff;
+  border-bottom: 1px solid #303030;
+  padding: 16px;
+  font-size: 14px;
+}
+
+.members-table .ant-table-tbody > tr > td {
+  background: transparent;
+  border-bottom: 1px solid #303030;
+  padding: 16px;
+  color: #ffffff;
+}
+
+.members-table .ant-table-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.member-action-btn {
+  color: #ff4d4f;
+  border: none;
+  background: transparent;
+  padding: 4px 8px;
+  height: auto;
+  font-size: 14px;
+}
+
+.member-action-btn:hover {
+  color: #ff7875;
+  background: rgba(255, 77, 79, 0.1);
+}
+
+/* Dark theme for DatePicker */
+.dark-theme-rangepicker {
+  background: #1f1f1f !important;
+  border-color: #303030 !important;
+}
+
+.dark-theme-rangepicker:hover,
+.dark-theme-rangepicker:focus {
+  border-color: #1890ff !important;
+}
+
+.dark-theme-rangepicker input {
+  color: #ffffff !important;
+}
+
+.dark-theme-rangepicker-popup {
+  background: #1f1f1f !important;
+  border-color: #303030 !important;
+}
+
+.dark-theme-rangepicker-popup .ant-picker-cell {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.dark-theme-rangepicker-popup .ant-picker-cell-in-view {
+  color: #ffffff !important;
+}
+
+.dark-theme-rangepicker-popup .ant-picker-cell-selected .ant-picker-cell-inner {
+  background: #1890ff !important;
+} 
