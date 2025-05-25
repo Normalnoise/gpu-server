@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Form, Input, Select, InputNumber, Space, Tooltip, Radio, Divider, Alert, Tag, message } from 'antd';
 import { DeploymentUnitOutlined, CloudServerOutlined, InfoCircleOutlined, TeamOutlined, PlusOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { createInstance, getTeamInstances, getAllInstances, createMockInstances, InstanceData } from '../services/instanceService';
-import InstanceList from '../components/InstanceList';
+import { createInstance, getTeamInstances, getAllInstances, createMockInstances, InstanceData as ServiceInstanceData } from '../services/instanceService';
+import InstanceList, { InstanceData as ListInstanceData, CurrentUser, Team as ListTeam } from '../components/InstanceList';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 
-interface Team {
+interface PageTeam {
   id: string;
   name: string;
   description: string;
@@ -141,10 +141,10 @@ const Instances: React.FC = () => {
   const [form] = Form.useForm();
   const [hasInstances, setHasInstances] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<PageTeam[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [selectedGpuType, setSelectedGpuType] = useState<string>('a100');
-  const [instances, setInstances] = useState<InstanceData[]>([]);
+  const [instances, setInstances] = useState<ServiceInstanceData[]>([]);
   const [creatingInstance, setCreatingInstance] = useState<boolean>(
     location.state?.creatingInstance || false
   );
@@ -159,7 +159,7 @@ const Instances: React.FC = () => {
   }, [location.state, navigate]);
 
   // Mock user information - in a real app, this would come from authentication context
-  const [currentUser] = useState({
+  const [currentUser] = useState<CurrentUser>({
     email: 'user@example.com',
     name: 'Current User'
   });
@@ -170,9 +170,9 @@ const Instances: React.FC = () => {
   // Load instances across all teams
   const loadInstances = async () => {
     try {
-      const allInstances = await getAllInstances();
-      setInstances(allInstances);
-      setHasInstances(allInstances.length > 0);
+      const allInstancesFromService = await getAllInstances();
+      setInstances(allInstancesFromService);
+      setHasInstances(allInstancesFromService.length > 0);
     } catch (error) {
       console.error('Error loading instances:', error);
       message.error('Failed to load instances');
@@ -184,7 +184,7 @@ const Instances: React.FC = () => {
     const loadData = async () => {
       try {
         // Mock data - in a real app, this would come from an API
-        const mockTeams: Team[] = [
+        const mockTeams: PageTeam[] = [
           { id: '1', name: 'ML Development', description: 'Machine Learning Development Team', role: 'owner' },
           { id: '2', name: 'Research Team', description: 'AI Research Group', role: 'admin' },
           { id: '3', name: 'Production', description: 'Production Environment', role: 'member' },
@@ -233,7 +233,9 @@ const Instances: React.FC = () => {
         
         // Check if the user has permission to create instances for this team
         if (selectedTeamObj.role !== 'owner' && selectedTeamObj.role !== 'admin') {
-          throw new Error('You do not have permission to create instances for this team');
+          message.error('You do not have permission to create instances for this team');
+          setLoading(false);
+          return;
         }
         
         teamId = selectedTeamObj.id;
@@ -411,6 +413,48 @@ const Instances: React.FC = () => {
       }
     }
   }
+
+  // Helper function to map service region to display region
+  const mapRegionToDisplay = (serviceRegion?: string): string => {
+    if (!serviceRegion) return 'N/A';
+    switch (serviceRegion.toLowerCase()) {
+      case 'us-west-2': return 'USA (West)';
+      case 'eu-north-1': return 'Norway';
+      case 'ca-central-1': return 'Canada';
+      case 'us': return 'USA'; // Added for form default
+      case 'norway': return 'Norway'; // Added for form default
+      case 'canada': return 'Canada'; // Added for form default
+      default: return serviceRegion;
+    }
+  };
+  
+  // Transform instances for the list
+  const transformedInstances = instances.map((inst): ListInstanceData => ({
+    ...inst,
+    id: inst.id,
+    name: inst.name,
+    status: inst.status,
+    teamId: inst.teamId,
+    teamName: inst.teamName,
+    createdBy: inst.createdBy,
+    creatorName: inst.creatorName,
+    gpuType: inst.gpuType,
+    gpuCount: inst.gpuCount,
+    // Provide defaults or transformations for fields expected by InstanceList's InstanceData
+    vcpu: (inst as any).vcpu || 4, // Example default, adjust as needed or ensure service provides it
+    memory: (inst as any).memory || '16 GB', // Example default
+    storageSize: inst.storageSize,
+    createdAt: inst.createdAt,
+    region: mapRegionToDisplay(inst.region), // Map region for display
+    hourlyRate: inst.hourlyRate,
+  }));
+  
+  // Transform PageTeam[] to ListTeam[] for InstanceList
+  const listTeams: ListTeam[] = teams.map(team => ({
+    id: team.id,
+    name: team.name,
+    role: team.role,
+  }));
 
   // If user has instances but is currently creating a new one
   if ((hasInstances || creatingInstance) && creatingInstance) {
@@ -666,7 +710,13 @@ const Instances: React.FC = () => {
         
         {/* Instance list */}
         <div style={{ padding: '0 20px' }}>
-          <InstanceList instances={instances} onRefresh={loadInstances} currentUser={currentUser.email} />
+          <InstanceList 
+            instances={transformedInstances} 
+            onRefresh={loadInstances} 
+            loading={loading}
+            currentUser={currentUser}
+            teams={listTeams}
+          />
         </div>
       </div>
     );
