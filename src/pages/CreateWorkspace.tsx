@@ -397,6 +397,15 @@ const CreateWorkspace: React.FC = () => {
                 <span className="pricing-value">{pricing.incoming}</span>
               </div>
               <Divider style={{ margin: '16px 0', borderColor: '#303030' }} />
+              <Text style={{ 
+                display: 'block', 
+                fontSize: '14px', 
+                color: 'rgba(255, 255, 255, 0.85)', 
+                marginBottom: '16px',
+                lineHeight: '1.5'
+              }}>
+                After creating the workspace, you will be able to create buckets and manage your storage.
+              </Text>
               <Button 
                 type="primary" 
                 block 

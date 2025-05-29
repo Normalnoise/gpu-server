@@ -105,13 +105,13 @@ const FirstTimeStorageView: React.FC = () => {
         </Title>
         
         <Paragraph style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.85)', maxWidth: '600px', margin: '0 auto 32px' }}>
-          Create your first object storage bucket for storing and managing machine learning models, datasets, images, videos, or any type of files.
+          Create a workspace to organize your projects. Once a workspace is created, you can create object storage buckets within it for your files.
         </Paragraph>
         
         <div style={{ maxWidth: '500px', margin: '0 auto 32px', textAlign: 'left', background: '#1a1a1a', padding: '20px', borderRadius: '8px', border: '1px solid #303030' }}>
           <Paragraph style={{ color: 'rgba(255, 255, 255, 0.85)', marginBottom: '20px' }}>
             <InfoCircleOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
-            <Text strong style={{ fontSize: '14px' }}>Choose bucket ownership:</Text> By default, the bucket will be created as your <Text strong>personal bucket</Text>. You can also select a team to allow team members to access this bucket.
+            <Text strong style={{ fontSize: '14px' }}>Choose workspace ownership:</Text> Select personal use or a team for shared access.
           </Paragraph>
           
           <Form
@@ -123,8 +123,8 @@ const FirstTimeStorageView: React.FC = () => {
               label={
                 <span style={{ color: '#ffffff' }}>
                   <TeamOutlined style={{ marginRight: '8px' }} />
-                  Bucket Ownership
-                  <Tooltip title="Select who this bucket will belong to">
+                  Workspace Ownership
+                  <Tooltip title="Select who this workspace will belong to">
                     <InfoCircleOutlined style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.45)' }} />
                   </Tooltip>
                 </span>
@@ -163,7 +163,7 @@ const FirstTimeStorageView: React.FC = () => {
                       </div>
                     </div>
                     <div style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '12px', marginTop: '2px' }}>
-                      Private bucket that only you can access and manage
+                      Private workspace for your exclusive use.
                     </div>
                   </div>
                 </Option>
@@ -171,7 +171,7 @@ const FirstTimeStorageView: React.FC = () => {
                 <Divider style={{ margin: '8px 0', borderColor: '#303030' }} />
                 
                 <Option key="team-label" disabled>
-                  <span style={{ color: 'rgba(255, 255, 255, 0.85)', fontWeight: 'bold' }}>Team Buckets:</span>
+                  <span style={{ color: 'rgba(255, 255, 255, 0.85)', fontWeight: 'bold' }}>Team Workspaces:</span>
                 </Option>
                 {teams.map(team => {
                   const hasPermission = team.role === 'owner' || team.role === 'admin';
@@ -209,7 +209,7 @@ const FirstTimeStorageView: React.FC = () => {
                           </div>
                         </div>
                         <div style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '12px', marginTop: '2px' }}>
-                          Team buckets may be visible or accessible to team members
+                          Team workspaces are shared with team members.
                         </div>
                       </div>
                     </Option>
@@ -227,7 +227,7 @@ const FirstTimeStorageView: React.FC = () => {
           onClick={() => {
             if (selectedTeam === 'personal' || (selectedTeam && teams.find(t => t.id === selectedTeam))) {
               // Navigate to storage page and pass selected team info
-              navigate('/storage', { 
+              navigate('/storage/create', { 
                 state: { 
                   fromFirstTime: true,
                   selectedTeam,
@@ -244,11 +244,11 @@ const FirstTimeStorageView: React.FC = () => {
           }}
           disabled={!selectedTeam}
         >
-          Continue Creating Bucket
+          Continue Creating Workspace
         </Button>
         
         <Paragraph style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.45)', marginTop: '16px' }}>
-          In the next page, you can configure bucket name, region, and access permissions
+          Configure workspace details on the next page.
         </Paragraph>
       </div>
     </Card>
