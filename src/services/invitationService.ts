@@ -9,7 +9,7 @@ import { message } from 'antd';
 // Store active invitations in memory (in a real app, this would be in a database)
 const activeInvitations: Record<string, InvitationData> = {};
 
-// DEBUG: 导出活跃邀请供调试使用
+// DEBUG: Export active invitations for debugging purposes
 export const getActiveInvitations = () => {
   console.log('Current active invitations:', activeInvitations);
   return {...activeInvitations};
@@ -228,4 +228,4 @@ export const getInvitationByEmail = (email: string, teamId: string): InvitationD
   
   console.log('[InvitationService] Invitation found by email:', !!invitation);
   return invitation || null;
-}; 
+};

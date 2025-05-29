@@ -25,7 +25,7 @@ interface Team {
 const TeamOverview: React.FC = () => {
   const navigate = useNavigate();
   
-  // 模拟团队数据
+  // Mock team data
   const [teams] = useState<Team[]>([
     {
       id: '1',

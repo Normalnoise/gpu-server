@@ -40,7 +40,7 @@ const ModelUsageDetailModal: React.FC<ModelUsageDetailModalProps> = ({
 }) => {
   if (!modelData) return null;
 
-  // 计算统计数据
+  // Calculate statistics
   const calculateStats = (records: any[], field: string): ModelUsageStats => {
     if (!records || records.length === 0) {
       return { min: 0, max: 0, avg: 0, total: 0 };
@@ -55,31 +55,31 @@ const ModelUsageDetailModal: React.FC<ModelUsageDetailModalProps> = ({
     return { min, max, avg, total };
   };
 
-  // 筛选当前模型和日期的使用记录
+  // Filter usage records for current model and date
   const filteredRecords = usageRecords.filter(
     record => record.model === modelData.model && record.date === date
   );
 
-  // 计算各项指标的统计数据
+  // Calculate statistics for each metric
   const tokenStats = calculateStats(filteredRecords, 'totalTokens');
   const costStats = calculateStats(filteredRecords, 'cost');
   const speedStats = calculateStats(filteredRecords, 'speed');
   const inputTokenStats = calculateStats(filteredRecords, 'tokensInput');
   const outputTokenStats = calculateStats(filteredRecords, 'tokensOutput');
 
-  // 格式化数字显示
+  // Format number display
   const formatNumber = (num: number) => {
     return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
   };
 
-  // 格式化成本显示
+  // Format cost display
   const formatCost = (cost: number) => {
     if (cost === 0) return '$0';
     if (cost < 0.0001) return '< $0.0001';
     return `$${cost.toFixed(7)}`;
   };
 
-  // 格式化速度显示
+  // Format speed display
   const formatSpeed = (speed: number) => {
     return `${speed.toFixed(1)} tps`;
   };
@@ -298,5 +298,5 @@ const ModelUsageDetailModal: React.FC<ModelUsageDetailModalProps> = ({
 
 export default ModelUsageDetailModal;
 
-// 添加Tooltip组件导入
+// Add Tooltip component import
 import { Tooltip } from 'antd';

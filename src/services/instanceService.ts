@@ -75,7 +75,7 @@ export const createInstance = async (
       hourlyRate = 1.00 * gpuCount;
   }
   
-  // 根据位置转换为AWS区域
+  // Convert location to AWS region
   let region: string;
   switch (location) {
     case 'us':
@@ -505,4 +505,4 @@ export const createMockTeamInstances = (
   });
   
   console.log('[InstanceService] Created mock team instances successfully');
-}; 
+};

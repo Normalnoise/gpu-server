@@ -38,7 +38,7 @@ const TeamList: React.FC = () => {
       memberCount: 4,
       createdAt: '2023-05-10'
     },
-  ]); // 使用示例数据
+  ]); // Use sample data
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
@@ -62,7 +62,7 @@ const TeamList: React.FC = () => {
   const handleDeleteTeam = async () => {
     if (selectedTeam) {
       try {
-        // TODO: 实现删除团队的API调用
+        // TODO: Implement API call for team deletion
         setTeams(teams.filter(team => team.id !== selectedTeam.id));
         message.success('Team deleted successfully');
       } catch (error) {
@@ -73,7 +73,7 @@ const TeamList: React.FC = () => {
     }
   };
 
-  // 获取角色标签颜色
+  // Get role tag color
   const getRoleTagColor = (role: string) => {
     switch (role) {
       case 'owner':

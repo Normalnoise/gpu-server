@@ -13,8 +13,12 @@ import Billing from './pages/Billing';
 import InviteMember from './pages/InviteMember';
 import Instances from './pages/Instances';
 import FirstTimeInstanceView from './pages/FirstTimeInstanceView';
+import FirstTimeStorageView from './pages/FirstTimeStorageView';
+import InstanceDetail from './pages/InstanceDetail';
+import Storage from './pages/Storage';
 import { darkTheme } from './theme/darkTheme';
 import './App.less';
+import CreateWorkspace from './pages/CreateWorkspace';
 
 const { Content } = Layout;
 
@@ -39,7 +43,12 @@ function App() {
                 <Route path="/billing" element={<Billing />} />
                 <Route path="/invite/:inviteToken" element={<InviteAccept />} />
                 <Route path="/instances" element={<Instances />} />
+                <Route path="/instances/:instanceId" element={<InstanceDetail />} />
                 <Route path="/empty-instance" element={<FirstTimeInstanceView />} />
+                <Route path="/empty-storage" element={<FirstTimeStorageView />} />
+                <Route path="/storage" element={<Storage />} />
+                <Route path="/object-storage" element={<Storage />} />
+                <Route path="/storage/create" element={<CreateWorkspace />} />
               </Routes>
             </Content>
           </Layout>

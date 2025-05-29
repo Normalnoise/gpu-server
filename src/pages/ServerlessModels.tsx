@@ -164,13 +164,13 @@ const ServerlessModels: React.FC = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0.04]);
   const [showFilters, setShowFilters] = useState(false);
   
-  // 使用项目中现有的logo作为默认logo
+  // Use existing logo in the project as default logo
   const defaultModelLogo = '/logo.png';
 
-  // 所有可用的输入模态
+  // All available input modalities
   const allModalities = ['all', 'text', 'image', 'audio', 'video'];
 
-  // 所有可用的模型系列
+  // All available model families
   const allSeries = [
     'all',
     'GPT',
@@ -193,37 +193,37 @@ const ServerlessModels: React.FC = () => {
     'PaLM'
   ];
 
-  // 筛选模型
+  // Filter models
   useEffect(() => {
     let filteredModels = mockModels;
 
-    // 按名称搜索
+    // Search by name
     if (searchText) {
       filteredModels = filteredModels.filter(model =>
         model.name.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
-    // 按输入模态筛选
+    // Filter by input modality
     if (selectedModality !== 'all') {
       filteredModels = filteredModels.filter(model =>
         model.inputModalities.includes(selectedModality)
       );
     }
 
-    // 按模型系列筛选
+    // Filter by model family
     if (selectedSeries !== 'all') {
       filteredModels = filteredModels.filter(model =>
         model.name.toLowerCase().includes(selectedSeries.toLowerCase())
       );
     }
 
-    // 按上下文长度筛选
+    // Filter by context length
     filteredModels = filteredModels.filter(
       model => model.contextLength >= contextLengthRange[0] && model.contextLength <= contextLengthRange[1]
     );
 
-    // 按价格筛选
+    // Filter by price
     filteredModels = filteredModels.filter(
       model => model.promptPrice >= priceRange[0] && model.promptPrice <= priceRange[1]
     );
@@ -231,7 +231,7 @@ const ServerlessModels: React.FC = () => {
     setModels(filteredModels);
   }, [searchText, selectedModality, selectedSeries, contextLengthRange, priceRange]);
 
-  // 重置所有筛选条件
+  // Reset all filters
   const resetFilters = () => {
     setSearchText('');
     setSelectedModality('all');
@@ -240,12 +240,12 @@ const ServerlessModels: React.FC = () => {
     setPriceRange([0, 0.04]);
   };
 
-  // 格式化价格显示
+  // Format price display
   const formatPrice = (price: number) => {
     return `$${price.toFixed(4)} / 1K tokens`;
   };
 
-  // 格式化上下文长度显示
+  // Format context length display
   const formatContextLength = (length: number) => {
     if (length >= 1000) {
       return `${(length / 1000).toFixed(0)}K tokens`;

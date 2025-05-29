@@ -1,6 +1,6 @@
 @import 'antd/dist/reset.css';
 
-// 全局主题样式
+// Global theme styles
 :root {
   --primary-color: #1890ff;
   --background-color: #000000;
@@ -16,7 +16,7 @@ body {
   color: var(--text-color);
 }
 
-// 布局样式
+// Layout styles
 .ant-layout {
   background: var(--background-color);
 
@@ -30,7 +30,7 @@ body {
   }
 }
 
-// 卡片样式
+// Card styles
 .ant-card {
   background: var(--component-background);
   border-color: var(--border-color);
@@ -41,7 +41,7 @@ body {
   }
 }
 
-// 表格样式
+// Table styles
 .ant-table {
   background: var(--component-background);
   color: var(--text-color);
@@ -60,7 +60,7 @@ body {
     background: #1f1f1f;
   }
 
-  // API Key 列样式优化
+  // API Key column style optimization
   .ant-typography {
     &.ant-typography-code {
       font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
@@ -76,7 +76,7 @@ body {
     }
   }
   
-  // 表格按钮
+  // Table buttons
   .ant-btn-text {
     padding: 4px 8px;
     
@@ -94,7 +94,7 @@ body {
   }
 }
 
-// 标签页样式
+// Tab styles
 .ant-tabs {
   color: var(--text-color);
 
@@ -115,7 +115,7 @@ body {
   }
 }
 
-// 按钮样式
+// Button styles
 .ant-btn {
   &:not(.ant-btn-primary) {
     background: transparent;
@@ -129,7 +129,7 @@ body {
   }
 }
 
-// 表单样式
+// Form styles
 .ant-form-item-label > label {
   color: var(--text-color);
 }
@@ -146,12 +146,12 @@ body {
   }
 }
 
-// 模态框样式增强
+// Modal style enhancement
 .ant-modal {
   .ant-modal-content {
-    background-color: #1a1f28 !important; // 更深的蓝灰色背景
+    background-color: #1a1f28 !important; // Deeper blue-gray background
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
-    border: 1px solid #283142 !important; // 蓝灰色边框
+    border: 1px solid #283142 !important; // Blue-gray border
     border-radius: 8px !important;
 
     .ant-modal-header {
@@ -181,21 +181,21 @@ body {
     }
   }
 
-  // 遮罩层加深
+  // Deepen mask layer
   .ant-modal-mask {
     background-color: rgba(0, 0, 0, 0.65) !important;
     backdrop-filter: blur(2px);
   }
 }
 
-// 修改API Key展示模态框
+// Modify API Key display modal
 .ant-modal[id*="rcDialogTitle"] {
   .ant-modal-content {
-    background-color: #1e2736 !important; // 更深的蓝灰色
+    background-color: #1e2736 !important; // Deeper blue-gray
   }
 }
 
-// 确认对话框样式增强
+// Confirm dialog style enhancement
 .ant-modal-confirm {
   .ant-modal-confirm-body {
     .ant-modal-confirm-title {
@@ -216,7 +216,7 @@ body {
   }
 }
 
-// 按钮悬停增强
+// Button hover enhancement
 .ant-btn-text {
   &:hover {
     background-color: rgba(255, 255, 255, 0.08) !important;
@@ -227,7 +227,7 @@ body {
   }
 }
 
-// Regenerate按钮特殊样式
+// Regenerate button special style
 .regenerate-btn {
   &:hover {
     background-color: rgba(24, 144, 255, 0.15) !important;
@@ -242,7 +242,7 @@ body {
   }
 }
 
-// Tooltip增强
+// Tooltip enhancement
 .ant-tooltip {
   .ant-tooltip-inner {
     background-color: #1f1f1f !important;
@@ -259,7 +259,7 @@ body {
   }
 }
 
-// 下拉框样式增强
+// Dropdown style enhancement
 .ant-select-dropdown {
   background-color: #1f1f1f !important;
   
@@ -285,12 +285,12 @@ body {
   }
 }
 
-// 修复选中后的Select显示
+// Fix Select display after selection
 .ant-select-selection-item {
   color: #ffffff !important;
 }
 
-// Alert组件样式增强
+// Alert component style enhancement
 .ant-alert {
   background-color: #111b26 !important;
   border: 1px solid #15395b !important;
@@ -329,14 +329,14 @@ body {
   }
 }
 
-// 成功提示样式
+// Success alert style
 .ant-alert-success {
-  background-color: #102417 !important; // 更深、更蓝的绿色
-  border: 1px solid #204d2d !important; // 蓝绿色边框
+  background-color: #102417 !important; // Deeper, bluer green
+  border: 1px solid #204d2d !important; // Blue-green border
   border-radius: 4px;
   
   .ant-alert-icon {
-    color: #49aa19 !important; // 略带蓝的绿色
+    color: #49aa19 !important; // Slightly blue-tinted green
   }
   
   .ant-alert-message {
@@ -349,10 +349,10 @@ body {
   }
 }
 
-// API Keys页面的Alert样式
+// Alert style for API Keys page
 .api-keys-alert {
   &.ant-alert-info {
-    background-color: #142638 !important; // 深蓝色
+    background-color: #142638 !important; // Deep blue
     border: 1px solid #1e4976 !important;
   }
   
@@ -379,16 +379,16 @@ body {
   }
 }
 
-// 特定API Key展示模态框样式
+// Specific API Key display modal style
 .api-key-display-modal {
   .ant-modal-content {
-    background-color: #132035 !important; // 更深、更鲜艳的蓝色调
+    background-color: #132035 !important; // Deeper, more vibrant blue tone
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
-    border: 1px solid #1e3a5c !important; // 亮蓝色边框
+    border: 1px solid #1e3a5c !important; // Bright blue border
     
     .ant-modal-header {
       background-color: #132035 !important;
-      border-bottom: 1px solid #1e3a5c !important; // 亮蓝色边框
+      border-bottom: 1px solid #1e3a5c !important; // Bright blue border
     }
     
     .ant-modal-body {
@@ -402,33 +402,33 @@ body {
     }
   }
   
-  // 加深遮罩
+  // Deepen mask
   & + .ant-modal-mask {
     background-color: rgba(0, 0, 0, 0.75) !important;
     backdrop-filter: blur(3px);
   }
   
-  // 文本容器样式
+  // Text container style
   .ant-typography {
     &.ant-typography-code {
       font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-      background-color: #0c1524 !important; // 深蓝色背景
+      background-color: #0c1524 !important; // Deep blue background
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      border: 1px solid #234372 !important; // 更亮的蓝色边框
+      border: 1px solid #234372 !important; // Brighter blue border
       border-radius: 6px;
       padding: 20px !important;
     }
   }
   
-  // 成功提示
+  // Success notification
   .api-keys-alert.ant-alert-success {
-    background-color: #0e2427 !important; // 蓝绿色背景
-    border: 1px solid #174e54 !important; // 蓝绿色边框
+    background-color: #0e2427 !important; // Blue-green background
+    border: 1px solid #174e54 !important; // Blue-green border
     margin-bottom: 24px !important;
     border-radius: 6px;
   }
   
-  // 复制按钮样式
+  // Copy button style
   .ant-btn-primary {
     background-color: #1890ff !important;
     border-color: #1890ff !important;
@@ -483,7 +483,7 @@ body {
     transition: background-color 0.2s;
   }
   
-  // 表格行悬停效果
+  // Table row hover effect
   .ant-table-tbody > tr:hover > td {
     background-color: #182334 !important;
   }

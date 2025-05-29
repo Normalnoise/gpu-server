@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Form, Select, Tooltip, Divider, Tag } from 'antd';
-import { CloudServerOutlined, InfoCircleOutlined, TeamOutlined } from '@ant-design/icons';
+import { CloudOutlined, InfoCircleOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text, Paragraph } = Typography;
@@ -14,8 +14,8 @@ interface Team {
 }
 
 // CSS style definition
-const instanceSelectStyles = `
-  .instance-ownership-select .ant-select-selection-item {
+const storageSelectStyles = `
+  .storage-ownership-select .ant-select-selection-item {
     display: flex !important;
     align-items: center !important;
     font-weight: bold !important;
@@ -23,21 +23,21 @@ const instanceSelectStyles = `
     font-size: 16px !important;
   }
   
-  .instance-ownership-select .ant-select-item-option-content {
+  .storage-ownership-select .ant-select-item-option-content {
     white-space: normal !important;
   }
   
-  .instance-ownership-select .ant-select-selection-item .ant-tag {
+  .storage-ownership-select .ant-select-selection-item .ant-tag {
     margin-right: 0 !important;
     margin-left: 8px !important;
   }
   
-  .instance-ownership-select.ant-select-focused .ant-select-selector {
+  .storage-ownership-select.ant-select-focused .ant-select-selector {
     border-color: #1890ff !important;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
   }
   
-  .instance-ownership-select .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  .storage-ownership-select .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     background-color: rgba(0, 140, 255, 0.1) !important;
     font-weight: bold !important;
   }
@@ -51,7 +51,7 @@ const instanceSelectStyles = `
   }
 `;
 
-const FirstTimeInstanceView: React.FC = () => {
+const FirstTimeStorageView: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [teams, setTeams] = useState<Team[]>([]);
@@ -61,7 +61,7 @@ const FirstTimeInstanceView: React.FC = () => {
   useEffect(() => {
     const styleElement = document.createElement('style');
     styleElement.type = 'text/css';
-    styleElement.innerHTML = instanceSelectStyles;
+    styleElement.innerHTML = storageSelectStyles;
     document.head.appendChild(styleElement);
 
     // Cleanup function
@@ -97,21 +97,21 @@ const FirstTimeInstanceView: React.FC = () => {
 
   return (
     <Card style={{ background: '#141414', border: '1px solid #303030' }}>
-      <div className="first-instance-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
-        <CloudServerOutlined style={{ fontSize: '64px', color: '#1890ff', marginBottom: '24px' }} />
+      <div className="first-storage-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+        <CloudOutlined style={{ fontSize: '64px', color: '#1890ff', marginBottom: '24px' }} />
         
         <Title level={2} style={{ color: '#ffffff', marginBottom: '16px' }}>
-          Start Using GPU Instances!
+          Start Using Object Storage Service!
         </Title>
         
         <Paragraph style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.85)', maxWidth: '600px', margin: '0 auto 32px' }}>
-          Create your first GPU instance to start running machine learning models, training workloads, or rendering tasks.
+          Create your first object storage bucket for storing and managing machine learning models, datasets, images, videos, or any type of files.
         </Paragraph>
         
         <div style={{ maxWidth: '500px', margin: '0 auto 32px', textAlign: 'left', background: '#1a1a1a', padding: '20px', borderRadius: '8px', border: '1px solid #303030' }}>
           <Paragraph style={{ color: 'rgba(255, 255, 255, 0.85)', marginBottom: '20px' }}>
             <InfoCircleOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
-            <Text strong style={{ fontSize: '14px' }}>Select Instance Ownership:</Text> By default, instances will be created as your <Text strong>personal instance</Text>. You can also select a team to allow team members to access this instance.
+            <Text strong style={{ fontSize: '14px' }}>Choose bucket ownership:</Text> By default, the bucket will be created as your <Text strong>personal bucket</Text>. You can also select a team to allow team members to access this bucket.
           </Paragraph>
           
           <Form
@@ -123,8 +123,8 @@ const FirstTimeInstanceView: React.FC = () => {
               label={
                 <span style={{ color: '#ffffff' }}>
                   <TeamOutlined style={{ marginRight: '8px' }} />
-                  Instance Ownership
-                  <Tooltip title="Select who this instance will belong to">
+                  Bucket Ownership
+                  <Tooltip title="Select who this bucket will belong to">
                     <InfoCircleOutlined style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.45)' }} />
                   </Tooltip>
                 </span>
@@ -141,7 +141,7 @@ const FirstTimeInstanceView: React.FC = () => {
                 value={selectedTeam}
                 listHeight={350}
                 dropdownMatchSelectWidth={true}
-                className="instance-ownership-select"
+                className="storage-ownership-select"
               >
                 <Option 
                   key="personal" 
@@ -149,21 +149,21 @@ const FirstTimeInstanceView: React.FC = () => {
                   label={
                     <div style={{ display: 'flex', alignItems: 'center', padding: '4px 0' }}>
                       <span style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '16px' }}>Personal</span>
-                      <Tag color="green" style={{ marginLeft: '8px', fontSize: '12px' }}>Default</Tag>
+          <Tag color="green" style={{ marginLeft: '8px', fontSize: '12px' }}>Default</Tag>
                     </div>
                   }
-                  className="personal-instance-option"
+                  className="personal-storage-option"
                 >
                   <div className="personal-option-wrapper">
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Personal</span>
                       <div>
-                        <Tag color="cyan" style={{ fontWeight: 'bold', fontSize: '14px', marginRight: '4px' }}>PERSONAL</Tag>
-                        <Tag color="green" style={{ fontSize: '12px' }}>Default</Tag>
+                        <Tag color="cyan" style={{ fontWeight: 'bold', fontSize: '14px', marginRight: '4px' }}>Personal</Tag>
+            <Tag color="green" style={{ fontSize: '12px' }}>Default</Tag>
                       </div>
                     </div>
                     <div style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '12px', marginTop: '2px' }}>
-                      Private instance that only you can access and manage
+                      Private bucket that only you can access and manage
                     </div>
                   </div>
                 </Option>
@@ -171,7 +171,7 @@ const FirstTimeInstanceView: React.FC = () => {
                 <Divider style={{ margin: '8px 0', borderColor: '#303030' }} />
                 
                 <Option key="team-label" disabled>
-                  <span style={{ color: 'rgba(255, 255, 255, 0.85)', fontWeight: 'bold' }}>Team Instances:</span>
+                  <span style={{ color: 'rgba(255, 255, 255, 0.85)', fontWeight: 'bold' }}>Team Buckets:</span>
                 </Option>
                 {teams.map(team => {
                   const hasPermission = team.role === 'owner' || team.role === 'admin';
@@ -209,7 +209,7 @@ const FirstTimeInstanceView: React.FC = () => {
                           </div>
                         </div>
                         <div style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '12px', marginTop: '2px' }}>
-                          Team instance that may be visible or accessible to team members
+                          Team buckets may be visible or accessible to team members
                         </div>
                       </div>
                     </Option>
@@ -223,15 +223,15 @@ const FirstTimeInstanceView: React.FC = () => {
         <Button 
           type="primary" 
           size="large"
-          icon={<CloudServerOutlined />}
+          icon={<CloudOutlined />}
           onClick={() => {
             if (selectedTeam === 'personal' || (selectedTeam && teams.find(t => t.id === selectedTeam))) {
-              // Navigate to instances page and pass selected team info
-              navigate('/instances', { 
+              // Navigate to storage page and pass selected team info
+              navigate('/storage', { 
                 state: { 
                   fromFirstTime: true,
                   selectedTeam,
-                  creatingInstance: true  // Explicitly set creating instance state to true
+                  creatingStorage: true  // Explicitly set creating storage bucket state to true
                 } 
               });
             }
@@ -244,15 +244,15 @@ const FirstTimeInstanceView: React.FC = () => {
           }}
           disabled={!selectedTeam}
         >
-          Continue Deployment
+          Continue Creating Bucket
         </Button>
         
         <Paragraph style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.45)', marginTop: '16px' }}>
-          In the next page, you can configure GPU type, quantity, and storage
+          In the next page, you can configure bucket name, region, and access permissions
         </Paragraph>
       </div>
     </Card>
   );
 };
 
-export default FirstTimeInstanceView;
+export default FirstTimeStorageView;

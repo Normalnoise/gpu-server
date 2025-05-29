@@ -12,12 +12,12 @@ const CreateTeam: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (values: TeamFormData) => {
-    const teamId = '1'; // 实际项目中应从API响应中获取
+    const teamId = '1'; // In a real project, this should be obtained from the API response
     try {
-      // TODO: 实现团队创建逻辑
+      // TODO: Implement team creation logic
       console.log('Creating team:', values);
       message.success('Team created successfully');
-      navigate(`/teams/${teamId}/manage`); // 导航到新创建的团队管理页面
+      navigate(`/teams/${teamId}/manage`); // Navigate to the newly created team management page
     } catch (error) {
       message.error('Failed to create team, please try again');
       console.error('Failed to create team:', error);

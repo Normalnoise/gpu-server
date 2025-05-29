@@ -9,7 +9,7 @@ const { Title, Text, Paragraph } = Typography;
 // Invitation state types
 type InviteState = 'loading' | 'invalid' | 'expired' | 'valid' | 'accepted' | 'error';
 
-// 辅助测试函数 - 创建测试邀请
+// Helper test function - create test invitation
 const createTestInvitation = () => {
   const invitation = createInvitation(
     'team-test-123',
@@ -22,9 +22,9 @@ const createTestInvitation = () => {
   return invitation.token;
 };
 
-// 创建已过期的测试邀请
+// Create expired test invitation
 const createExpiredTestInvitation = () => {
-  // 创建邀请
+  // Create invitation
   const invitation = createInvitation(
     'team-expired-123',
     'Expired Test Team',
@@ -33,7 +33,7 @@ const createExpiredTestInvitation = () => {
     'admin@example.com'
   );
   
-  // 修改过期时间为过去的日期 (昨天)
+  // Change expiration time to a past date (yesterday)
   const expiredDate = new Date();
   expiredDate.setDate(expiredDate.getDate() - 1);
   invitation.expiresAt = expiredDate;
@@ -81,7 +81,7 @@ const InviteAccept: React.FC = () => {
 
     const verifyToken = async () => {
       try {
-        // 调试帮助 - 特殊token用于测试
+        // Debug help - special token for testing
         if (inviteToken === 'test') {
           console.log('[InviteAccept] Test token detected, creating a new test invitation');
           const testToken = createTestInvitation();
@@ -90,7 +90,7 @@ const InviteAccept: React.FC = () => {
           return;
         }
         
-        // 测试过期邀请
+        // Test expired invitation
         if (inviteToken === 'expired') {
           console.log('[InviteAccept] Expired test token detected, creating an expired invitation');
           const expiredToken = createExpiredTestInvitation();
@@ -462,4 +462,4 @@ const InviteAccept: React.FC = () => {
   );
 };
 
-export default InviteAccept; 
+export default InviteAccept;

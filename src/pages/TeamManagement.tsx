@@ -293,7 +293,7 @@ const TeamManagement: React.FC = () => {
   const [mockData] = useState<boolean>(true); // Set to true to generate mock data
   const [currentUserEmail] = useState<string>('user@example.com'); // Current user's email
 
-  // 模拟团队数据
+  // Mock team data
   const [team, setTeam] = useState<Team>({ // Changed to useState with setTeam
     id: teamId || '',
     name: 'ML Development',
@@ -313,7 +313,7 @@ const TeamManagement: React.FC = () => {
     ]
   });
 
-  // 模拟使用统计数据
+  // Mock usage statistics data
   const [teamUsageSummary] = useState<UsageSummary>({
     spend: {
       lastDay: '$1.579',
@@ -329,7 +329,7 @@ const TeamManagement: React.FC = () => {
     }
   });
 
-  // 模拟每日使用数据
+  // Mock daily usage data
   const [dailyUsage] = useState<DailyUsage[]>([
     {
       date: '2024-04-27',
@@ -449,7 +449,7 @@ const TeamManagement: React.FC = () => {
     }
   ]);
 
-  // 模拟模型使用汇总
+  // Mock model usage summary
   const [modelUsage] = useState<ModelUsageSummary[]>([
     { 
       model: 'microsoft/wizardlm-2-8x22b', 
@@ -549,7 +549,7 @@ const TeamManagement: React.FC = () => {
     }
   ]);
 
-  // 模拟团队成员使用统计
+  // Mock team member usage statistics
   const [membersUsage] = useState<Record<string, UsageSummary>>({
     'owner@example.com': {
       spend: {
@@ -595,7 +595,7 @@ const TeamManagement: React.FC = () => {
     },
   });
 
-  // 模拟使用记录
+  // Mock usage records
   const [usageRecords] = useState<UsageRecord[]>([
     // Today's records (May 9)
     {
@@ -1032,11 +1032,11 @@ const TeamManagement: React.FC = () => {
     }
   ]);
 
-  // 初始化API密钥的可见性状态
+  // Initialize visibility state for API keys
   React.useEffect(() => {
     const initialVisibility: Record<string, boolean> = {};
     team.apiKeys.forEach(key => {
-      initialVisibility[key.id] = false; // 默认所有API密钥都隐藏
+      initialVisibility[key.id] = false; // Hide all API keys by default
     });
     setApiKeyVisibility(initialVisibility);
   }, [team.apiKeys]);
@@ -1063,12 +1063,12 @@ const TeamManagement: React.FC = () => {
     return `${key.substring(0, 6)}${'•'.repeat(20)}${key.substring(key.length - 4)}`;
   };
 
-  // 格式化API密钥显示
+  // Format API key display
   const formatApiKey = (key: string, isVisible: boolean) => {
     if (isVisible) {
       return key;
     }
-    // 只显示前4位和后4位，其余用*代替
+    // Only show first 4 and last 4 characters, replace the rest with *
     const prefix = key.substring(0, 4);
     const suffix = key.substring(key.length - 4);
     return `${prefix}${'*'.repeat(Math.max(0, key.length - 8))}${suffix}`;
@@ -1159,7 +1159,7 @@ const TeamManagement: React.FC = () => {
 
   const handleCreateApiKey = async (values: { name: string }) => {
     try {
-      // TODO: 实现创建API Key的API调用
+      // TODO: Implement API call for creating API Key
       console.log('Creating API Key:', values);
       message.success('API Key created successfully');
       setApiKeyModalVisible(false);
@@ -1172,7 +1172,7 @@ const TeamManagement: React.FC = () => {
 
   const handleUpdateRole = async (memberId: string, newRole: string) => {
     try {
-      // TODO: 实现更新角色的API调用
+      // TODO: Implement API call for updating role
       console.log('Updating role:', { memberId, newRole });
       setTeam(prevTeam => ({
         ...prevTeam,
@@ -1196,7 +1196,7 @@ const TeamManagement: React.FC = () => {
       cancelText: 'Cancel',
       async onOk() {
         try {
-          // TODO: 实现移除成员的API调用
+          // TODO: Implement API call for removing member
           console.log('Removing member:', memberId);
           message.success('Member removed successfully');
         } catch (error) {
@@ -1216,7 +1216,7 @@ const TeamManagement: React.FC = () => {
       cancelText: 'Keep Invitation',
       async onOk() {
         try {
-          // TODO: 实现取消邀请的API调用
+          // TODO: Implement API call for canceling invitation
           console.log('Canceling invite:', memberId);
           message.success('Invitation canceled successfully');
         } catch (error) {
@@ -1244,7 +1244,7 @@ const TeamManagement: React.FC = () => {
       cancelText: 'Cancel',
       async onOk() {
         try {
-          // TODO: 实现启用/禁用API Key的API调用
+          // TODO: Implement API call for enabling/disabling API Key
           console.log('Toggling API Key status:', { keyId, newStatus });
           message.success(`API Key ${newStatus === 'active' ? 'enabled' : 'disabled'} successfully`);
         } catch (error) {
@@ -1264,7 +1264,7 @@ const TeamManagement: React.FC = () => {
       cancelText: 'Cancel',
       async onOk() {
         try {
-          // TODO: 实现删除API Key的API调用
+          // TODO: Implement API call for deleting API Key
           console.log('Deleting API Key:', keyId);
           message.success('API Key deleted successfully');
         } catch (error) {
@@ -1284,7 +1284,7 @@ const TeamManagement: React.FC = () => {
       cancelText: 'Cancel',
       async onOk() {
         try {
-          // TODO: 实现删除团队的API调用
+          // TODO: Implement API call for deleting team
           console.log('Deleting team:', teamId);
           message.success('Team deleted successfully');
           navigate('/teams');
@@ -1304,14 +1304,14 @@ const TeamManagement: React.FC = () => {
       okType: 'danger',
       cancelText: 'Cancel',
       async onOk() {
-        // 转移所有权需要更多步骤，这里应该打开一个选择新所有者的模态框
-        // 简化处理，这里只是消息提示
+        // Transferring ownership requires more steps, should open a modal to select new owner
+      // Simplified handling, just show a message here
         message.info('Please select a member to transfer ownership to');
       },
     });
   };
 
-  // 设计统一的表头样式
+  // Design unified table header style
   const renderTableTitle = (title: string, icon: React.ReactNode, count: number) => (
     <div className="member-table-header">
       <div className="member-table-title">
@@ -1782,7 +1782,7 @@ const TeamManagement: React.FC = () => {
   const activeMembers = team.members.filter(m => m.status === 'active');
   const pendingMembers = team.members.filter(m => m.status === 'pending');
 
-  // 按筛选条件过滤使用记录
+  // Filter usage records by filter conditions
   const filteredUsageRecords = useMemo(() => {
     return usageRecords.filter(record => {
       const recordDate = record.date;
@@ -1798,7 +1798,7 @@ const TeamManagement: React.FC = () => {
     });
   }, [usageRecords, usageFilter, modelFilter, dateRange]);
 
-  // 获取用户显示名称
+  // Get user display name
   const getUserDisplayName = (email: string) => {
     const member = team.members.find(m => m.email === email);
     if (member) {
@@ -1807,7 +1807,7 @@ const TeamManagement: React.FC = () => {
     return email;
   };
   
-  // 获取使用该模型的用户列表
+  // Get list of users who used this model
   const getModelUsers = (records: UsageRecord[]): string => {
     const userEmails = Array.from(new Set(records.map(record => record.user)));
     return userEmails.map(email => {
@@ -1816,7 +1816,7 @@ const TeamManagement: React.FC = () => {
     }).join(', ');
   };
   
-  // 获取当前日期范围内的所有日期
+  // Get all dates within the current date range
   const getDatesInRange = (): string[] => {
     const dates: string[] = [];
     const startDate = dateRange[0];
@@ -1831,12 +1831,12 @@ const TeamManagement: React.FC = () => {
     return dates;
   };
   
-  // 获取日期表显格式
+  // Get date display format
   const formatDate = (dateStr: string): string => {
     return dayjs(dateStr).format('MMM D');
   };
   
-  // 按日期和模型筛选使用记录的图表数据
+  // Filter chart data for usage records by date and model
   const getChartData = () => {
     const dates = getDatesInRange();
     
@@ -1870,23 +1870,23 @@ const TeamManagement: React.FC = () => {
     });
   };
   
-  // 处理点击柱状图
+  // Handle bar chart click
   const handleBarClick = (date: string) => {
     setSelectedDay(selectedDay === date ? null : date);
   };
   
-  // 处理点击模型详情
+  // Handle model details click
   const handleModelDetailClick = (modelData: any) => {
     setSelectedModelData(modelData);
     setModelDetailVisible(true);
   };
   
-  // 处理图表类型切换
+  // Handle chart type switch
   const handleChartTypeChange = (e: RadioChangeEvent) => {
     setChartType(e.target.value);
   };
 
-  // 使用记录表格列定义
+  // Usage record table column definition
   const usageColumns: ColumnsType<UsageRecord> = [
     {
       title: () => (
@@ -2032,7 +2032,7 @@ const TeamManagement: React.FC = () => {
     }
   }, [team.id, team.members, mockData, fetchTeamInstances]);
 
-  // 处理编辑权限
+  // Handle edit permissions
   const handleEditPermissions = (member: TeamMember) => {
     setEditingMember(member);
     setSelectedPermissions(member.permissions || []);
@@ -2040,12 +2040,12 @@ const TeamManagement: React.FC = () => {
     setEditPermissionModalVisible(true);
   };
 
-  // 处理权限更新
+  // Handle permission update
   const handleUpdatePermissions = async () => {
     if (!editingMember) return;
     
     try {
-      // 在实际应用中，这里应该调用API更新权限
+      // In a real application, this should call an API to update permissions
       setTeam(prevTeam => ({
         ...prevTeam,
         members: prevTeam.members.map(member =>
@@ -2594,9 +2594,9 @@ const TeamManagement: React.FC = () => {
               />
               
               {/* Debug section to show raw data */}
-              <Card title="模型使用数据 (调试)" style={{ marginTop: '24px', background: '#1a1a1a', borderColor: '#303030' }}>
+              <Card title="Model Usage Data (Debug)" style={{ marginTop: '24px', background: '#1a1a1a', borderColor: '#303030' }}>
                 <div style={{ maxHeight: '400px', overflow: 'auto', fontSize: '12px', fontFamily: 'monospace', color: '#ffffff' }}>
-                  <h4>所有模型使用统计:</h4>
+                  <h4>All Model Usage Statistics:</h4>
                   <Table
                     columns={[
                       {
@@ -2641,7 +2641,7 @@ const TeamManagement: React.FC = () => {
                     style={{ background: 'transparent' }}
                   />
                   
-                  <h4>每日使用数据:</h4>
+                  <h4>Daily Usage Data:</h4>
                   <pre>{JSON.stringify(dailyUsage, null, 2)}</pre>
                 </div>
               </Card>
@@ -2701,7 +2701,7 @@ const TeamManagement: React.FC = () => {
             }
             key="settings"
           >
-            {/* TODO: 实现团队设置功能 */}
+            {/* TODO: Implement team settings functionality */}
             <p style={{ color: '#fff' }}>Team settings feature is under development...</p>
           </TabPane>
         </Tabs>
@@ -2740,7 +2740,7 @@ const TeamManagement: React.FC = () => {
           </Form>
         </Modal>
 
-        {/* 模型使用详情弹窗 */}
+        {/* Model usage details modal */}
         <ModelUsageDetailModal
           visible={modelDetailVisible}
           onClose={() => setModelDetailVisible(false)}

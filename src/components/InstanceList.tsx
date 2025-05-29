@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Button, Table, Tag, Select, Space, Typography, Input, Tooltip } from 'antd';
-import { CloudServerOutlined, SyncOutlined, DownOutlined, SearchOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Button, Table, Tag, Select, Space, Typography, Input, Tooltip, Modal, Descriptions, Row, Col, Divider, message } from 'antd';
+import { CloudServerOutlined, SyncOutlined, DownOutlined, SearchOutlined, InfoCircleOutlined, EyeOutlined, EyeInvisibleOutlined, CopyOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 // Simplified CurrentUser interface based on what Instances.tsx provides
 export interface CurrentUser {
@@ -36,6 +37,15 @@ export interface InstanceData {
   region?: string; // e.g., "CANADA", "NORWAY"
   hourlyRate?: number;
   // role?: string; // Creator's role, if needed for other logic, not directly in table based on image
+  osImage?: string;
+  lanIpAddress?: string;
+  publicIpAddress?: string; // Explicit public IP
+  servedHours?: number;
+  totalCost?: number;
+  bandwidth?: string;
+  username?: string;
+  password?: string; // Consider security implications for displaying/handling passwords
+  instanceTypeTag?: string; // e.g., "Virtual Machine-CPU" or "GPU Instance"
 }
 
 interface InstanceListProps {
@@ -79,33 +89,62 @@ const InstanceList: React.FC<InstanceListProps> = ({
   const [instanceNameSearch, setInstanceNameSearch] = useState<string>('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
 
+  // State for the modal
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedInstance, setSelectedInstance] = useState<InstanceData | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleDeployClick = () => {
     navigate('/instances', { state: { creatingInstance: true } });
   };
 
-  const getStatusDisplay = (status: string) => {
+  const getStatusDisplay = (status: string, inModal: boolean = false) => {
     const lowerStatus = status?.toLowerCase();
+    let style: React.CSSProperties = inModal ? { fontSize: '14px' } : {};
     switch (lowerStatus) {
       case 'running':
-        return <Text style={{ color: '#52c41a' }}>Running</Text>; // Green
+        return <Text style={{ color: '#52c41a', ...style }}>Running</Text>;
       case 'stopped':
-        return <Text style={{ color: '#faad14' }}>Stopped</Text>; // Orange
-      case 'terminated': // Assuming 'Deleted' in image means 'terminated'
-        return <Text style={{ color: '#f5222d' }}>Deleted</Text>; // Red
+        return <Text style={{ color: '#faad14', ...style }}>Stopped</Text>;
+      case 'deleted': // Matching image
+      case 'terminated':
+        return <Text style={{ color: '#f5222d', ...style }}>Deleted</Text>;
       case 'pending':
       case 'creating':
-        return <Text style={{ color: '#1890ff' }}>Pending</Text>; // Blue
-      case 'failed': // As per image, 'Failed' is green
-        return <Text style={{ color: '#52c41a' }}>Failed</Text>; // Green
+        return <Text style={{ color: '#1890ff', ...style }}>Pending</Text>;
+      case 'failed': // As per previous logic, 'Failed' is green, image shows 'Deleted'
+        return <Text style={{ color: '#f5222d', ...style }}>Failed</Text>; 
       case 'error':
-        return <Text style={{ color: '#f5222d' }}>Error</Text>; // Red
+        return <Text style={{ color: '#f5222d', ...style }}>Error</Text>;
       default:
-        return <Text style={{ color: '#bfbfbf' }}>{status || 'Unknown'}</Text>;
+        return <Text style={{ color: '#bfbfbf', ...style }}>{status || 'Unknown'}</Text>;
     }
   };
 
-  const handleViewInstance = (instanceId: string) => {
-    navigate(`/instances/${instanceId}`);
+  const handleViewInstance = (instance: InstanceData) => {
+    // For demonstration, let's fill in some missing fields if not present in instance data
+    const instanceWithFallback: InstanceData = {
+      ...instance,
+      instanceTypeTag: instance.instanceTypeTag || (instance.gpuType && instance.gpuType.toLowerCase() !== 'cpu' ? `${instance.gpuType.toUpperCase()} Instance` : 'Virtual Machine-CPU'),
+      osImage: instance.osImage || 'Ubuntu 22.04 LTS x64', // Mocked
+      lanIpAddress: instance.lanIpAddress || '172.20.0.17', // Mocked
+      publicIpAddress: instance.publicIpAddress || instance.ipAddress || '38.80.81.174', // Mocked
+      servedHours: instance.servedHours || 0.3120, // Mocked
+      totalCost: instance.totalCost || instance.hourlyRate ? instance.hourlyRate! * (instance.servedHours || 0.3120) : 0.0131, // Mocked
+      bandwidth: instance.bandwidth || '1 Gbps', // Mocked
+      username: instance.username || 'root', // Mocked
+      password: instance.password || '**********', // Mocked
+      vcpu: instance.vcpu || 4, // Mocked
+      memory: instance.memory || '16 GB' // Mocked
+    };
+    setSelectedInstance(instanceWithFallback);
+    setIsModalVisible(true);
+    setShowPassword(false); // Reset password visibility
+  };
+  
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedInstance(null);
   };
 
   const uniqueCreators = useMemo(() => {
@@ -121,7 +160,7 @@ const InstanceList: React.FC<InstanceListProps> = ({
   const filteredInstances = useMemo(() => {
     return instances.filter(instance => {
       const teamMatch = selectedTeamFilter === 'all' || 
-                        (selectedTeamFilter === 'personal' && instance.teamId === 'personal') || 
+                        (selectedTeamFilter === 'personal' && (instance.teamId === 'personal' || !instance.teamId)) || // Also handle undefined teamId as personal
                         instance.teamId === selectedTeamFilter;
       const creatorMatch = selectedCreatorFilter === 'all' || instance.createdBy === selectedCreatorFilter;
       const nameMatch = instance.name.toLowerCase().includes(instanceNameSearch.toLowerCase());
@@ -138,7 +177,7 @@ const InstanceList: React.FC<InstanceListProps> = ({
       render: (text: string, record: InstanceData) => (
         <Button 
           type="link" 
-          onClick={() => handleViewInstance(record.id)}
+          onClick={() => handleViewInstance(record)}
           style={{ padding: 0, color: '#1890ff' }}
         >
           {text || 'Untitled Instance'}
@@ -180,7 +219,7 @@ const InstanceList: React.FC<InstanceListProps> = ({
       key: 'creator',
       render: (_: any, record: InstanceData) => {
         const isCurrentUserCreator = currentUser && currentUser.email === record.createdBy;
-        const displayLabelText = isCurrentUserCreator ? 'YOU' : (record.creatorName || record.createdBy);
+        const displayLabelText = isCurrentUserCreator ? 'YOU' : (record.creatorName || record.createdBy.split('@')[0]);
         
         const displayElement = isCurrentUserCreator ? 
           <Tag color="cyan">YOU</Tag> : 
@@ -188,7 +227,7 @@ const InstanceList: React.FC<InstanceListProps> = ({
 
         return (
           <Tooltip title={record.createdBy}>
-            <span style={{ cursor: 'pointer' }}>
+            <span style={{ cursor: 'default' }}>
               {displayElement}
             </span>
           </Tooltip>
@@ -199,7 +238,7 @@ const InstanceList: React.FC<InstanceListProps> = ({
       title: 'Location',
       dataIndex: 'region',
       key: 'location',
-      render: (region?: string) => <Text style={{ color: '#e0e0e0' }}>{region || 'N/A'}</Text>,
+      render: (region?: string) => <Text style={{ color: '#e0e0e0' }}>{region?.toUpperCase() || 'N/A'}</Text>,
     },
     {
       title: 'Type',
@@ -252,7 +291,7 @@ const InstanceList: React.FC<InstanceListProps> = ({
           type="primary"
           ghost
           size="small"
-          onClick={() => handleViewInstance(record.id)}
+          onClick={() => handleViewInstance(record)}
           style={{ borderColor: '#40a9ff', color: '#40a9ff' }}
         >
           View
@@ -260,6 +299,17 @@ const InstanceList: React.FC<InstanceListProps> = ({
       ),
     },
   ];
+
+  const modalTitle = (
+    <Space align="center">
+      <Title level={4} style={{ margin: 0, color: "white" }}>Instance Details</Title>
+      {selectedInstance?.instanceTypeTag && (
+        <Tag color="processing" style={{ marginLeft: 8, fontSize: '13px', padding: '2px 8px' }}>
+          {selectedInstance.instanceTypeTag}
+        </Tag>
+      )}
+    </Space>
+  );
 
   return (
     <>
@@ -366,7 +416,7 @@ const InstanceList: React.FC<InstanceListProps> = ({
           >
             <Option value="all" style={{ color: '#e0e0e0', background: '#1f1f1f' }}>All</Option>
             {uniqueCreators.map(([id, name]) => {
-              const displayName = currentUser && currentUser.email === id ? 'YOU' : name;
+              const displayName = currentUser && currentUser.email === id ? 'YOU' : name.split('@')[0];
               return (
                 <Option key={id} value={id} style={{ color: '#e0e0e0', background: '#1f1f1f' }}>
                   {displayName}
@@ -436,6 +486,85 @@ const InstanceList: React.FC<InstanceListProps> = ({
         }}
       />
     </div>
+
+    {selectedInstance && (
+        <Modal
+          title={modalTitle}
+          open={isModalVisible}
+          onCancel={handleCloseModal}
+          footer={null}
+          width={800}
+          destroyOnClose
+          bodyStyle={{ backgroundColor: '#1f1f1f', color: 'white', paddingTop: '20px' }}
+          maskStyle={{backdropFilter: 'blur(3px)'}}
+        >
+          {(() => { // IIFE to define constants for the entire modal body
+            const labelColor = '#a0a0a0';
+            const valueTextStyle: React.CSSProperties = { fontSize: '14px', color: 'rgba(255, 255, 255, 0.95)' };
+            const summaryValueTextStyle: React.CSSProperties = { fontSize: '14px', color: 'rgba(255, 255, 255, 0.95)', fontWeight: 'bold' };
+            const nameValueTextStyle: React.CSSProperties = { fontSize: '15px', color: 'rgba(255, 255, 255, 0.95)', fontWeight: 'bold' };
+
+            return (
+              <div style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
+                {/* Top Section */}
+                <Row gutter={[16,16]} style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #303030' }}>
+                  <Col span={4}><Text style={{color: labelColor}}>Name:</Text><br/><Text style={nameValueTextStyle}>{selectedInstance.name}</Text></Col>
+                  <Col span={4}><Text style={{color: labelColor}}>Status:</Text><br/>{getStatusDisplay(selectedInstance.status, true)}</Col>
+                  <Col span={4}><Text style={{color: labelColor}}>Location:</Text><br/><Text style={summaryValueTextStyle}>{selectedInstance.region?.toUpperCase()}</Text></Col>
+                  <Col span={5}><Text style={{color: labelColor}}>Served:</Text><br/><Text style={summaryValueTextStyle}>{selectedInstance.servedHours?.toFixed(4)} hours</Text></Col>
+                  <Col span={5}><Text style={{color: labelColor}}>Total Cost:</Text><br/><Text style={summaryValueTextStyle}>${selectedInstance.totalCost?.toFixed(4)}</Text></Col>
+                </Row>
+
+                {/* Main Details Section */}
+                <Row gutter={[32, 24]}>
+                  <Col span={8}>
+                    <div style={{ marginBottom: '16px'}}><Text style={{color: labelColor}}>Instance Started:</Text><br/><Text style={valueTextStyle}>{dayjs(selectedInstance.createdAt).format('YYYY-MM-DD hh:mm:ss A EST')}</Text></div>
+                    <div style={{ marginBottom: '16px'}}><Text style={{color: labelColor}}>vCPU:</Text><br/><Text style={valueTextStyle}>{selectedInstance.vcpu}</Text></div>
+                    <div><Text style={{color: labelColor}}>Username:</Text><br/><Text style={valueTextStyle}>{selectedInstance.username}</Text></div>
+                  </Col>
+                  <Col span={8}>
+                    <div style={{ marginBottom: '16px'}}><Text style={{color: labelColor}}>OS/Image:</Text><br/><Text style={valueTextStyle}>{selectedInstance.osImage}</Text></div>
+                    <div style={{ marginBottom: '16px'}}><Text style={{color: labelColor}}>Memory:</Text><br/><Text style={valueTextStyle}>{selectedInstance.memory}</Text></div>
+                    <div>
+                      <Text style={{color: labelColor}}>Password:</Text><br/>
+                      <Space>
+                        <Text style={valueTextStyle}>{showPassword ? selectedInstance.password : '******'}</Text>
+                        <Tooltip title={showPassword ? "Hide" : "Show"}>
+                          <Button icon={showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />} onClick={() => setShowPassword(!showPassword)} type="text" size="small" style={{color: 'rgba(255,255,255,0.65)'}}/>
+                        </Tooltip>
+                        <Tooltip title="Copy Password">
+                          <Button icon={<CopyOutlined />} onClick={() => { navigator.clipboard.writeText(selectedInstance.password || ''); message.success("Password copied!");}} type="text" size="small" style={{color: 'rgba(255,255,255,0.65)'}}/>
+                        </Tooltip>
+                      </Space>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div style={{ marginBottom: '16px'}}><Text style={{color: labelColor}}>LAN IP Address:</Text><br/><Text style={valueTextStyle}>{selectedInstance.lanIpAddress}</Text></div>
+                    <div style={{ marginBottom: '16px'}}><Text style={{color: labelColor}}>Disk:</Text><br/><Text style={valueTextStyle}>{selectedInstance.storageSize} GB</Text></div>
+                    <div><Text style={{color: labelColor}}>Bandwidth:</Text><br/><Text style={valueTextStyle}>{selectedInstance.bandwidth || 'N/A'}</Text></div>
+                  </Col>
+                  <Col span={24} style={{marginTop: '8px'}}>
+                    <Text style={{color: labelColor}}>Public IP Address:</Text><br/><Text style={valueTextStyle}>{selectedInstance.publicIpAddress}</Text>
+                  </Col>
+                </Row>
+                
+                <Divider style={{ margin: '24px 0', borderColor: '#303030' }} />
+                <Row gutter={[32,16]}>
+                    <Col span={8}>
+                        <Text style={{color: labelColor}}>Team:</Text><br/>
+                        <Text style={valueTextStyle}>{selectedInstance.teamName || (selectedInstance.teamId === 'personal' || !selectedInstance.teamId ? 'Personal' : selectedInstance.teamId)}</Text>
+                    </Col>
+                    <Col span={8}>
+                        <Text style={{color: labelColor}}>Creator:</Text><br/>
+                        <Text style={valueTextStyle}>{selectedInstance.creatorName || selectedInstance.createdBy.split('@')[0]}</Text>
+                        {currentUser && currentUser.email === selectedInstance.createdBy && <Tag color="cyan" style={{marginLeft: '8px'}}>YOU</Tag>}
+                    </Col>
+                </Row>
+              </div>
+            );
+          })()} 
+        </Modal>
+      )}
     </>
   );
 };
