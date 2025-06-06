@@ -2148,6 +2148,39 @@ const TeamManagement: React.FC = () => {
         <TabPane
           tab={
             <span>
+              <DesktopOutlined />
+              Instances
+            </span>
+          }
+          key="instances"
+        >
+          <div>
+            <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
+              Team Instances
+              <Tooltip title="All GPU instances created by team members">
+                <InfoCircleOutlined style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.45)' }} />
+              </Tooltip>
+            </Typography.Title>
+            
+            {instancesLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                <Spin size="large" />
+              </div>
+            ) : (
+              <TeamInstanceList 
+                instances={teamInstances}
+                teamMembers={team.members}
+                currentUserRole={team.currentUserRole}
+                currentUserEmail={currentUserEmail}
+                onRefresh={fetchTeamInstances}
+              />
+            )}
+          </div>
+        </TabPane>
+        
+        <TabPane
+          tab={
+            <span>
               <CloudOutlined />
               Object Storage
             </span>
@@ -2160,7 +2193,7 @@ const TeamManagement: React.FC = () => {
         <TabPane
           tab={
             <span>
-              <SettingOutlined />
+              <AreaChartOutlined />
               Usage Analytics
             </span>
           }
