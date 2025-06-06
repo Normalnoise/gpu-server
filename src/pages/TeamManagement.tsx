@@ -34,7 +34,10 @@ import {
   LineChartOutlined,
   UserSwitchOutlined,
   DesktopOutlined,
-  ReloadOutlined // Added ReloadOutlined
+  ReloadOutlined,
+  CloudOutlined,
+  FlagOutlined,
+  SearchOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { createInvitation, sendInvitationEmail } from '../services/invitationService';
@@ -45,6 +48,7 @@ import {
   InstanceData,
   updateInstanceStatus 
 } from '../services/instanceService';
+import ObjectStorageTab from '../components/ObjectStorageTab';
 
 // Add type definitions
 type PermissionPackageType = keyof typeof PERMISSION_PACKAGES | 'custom';
@@ -2140,42 +2144,23 @@ const TeamManagement: React.FC = () => {
             </Space>
           </div>
         </TabPane>
+        
         <TabPane
           tab={
             <span>
-              <DesktopOutlined />
-              Instances
+              <CloudOutlined />
+              Object Storage
             </span>
           }
-          key="instances"
+          key="object-storage"
         >
-          <div>
-            <Typography.Title level={5} style={{ color: '#ffffff', marginBottom: '16px' }}>
-              Team Instances
-              <Tooltip title="All GPU instances created by team members">
-                <InfoCircleOutlined style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.45)' }} />
-              </Tooltip>
-            </Typography.Title>
-            
-            {instancesLoading ? (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-                <Spin size="large" />
-              </div>
-            ) : (
-              <TeamInstanceList 
-                instances={teamInstances}
-                teamMembers={team.members}
-                currentUserRole={team.currentUserRole}
-                currentUserEmail={currentUserEmail}
-                onRefresh={fetchTeamInstances}
-              />
-            )}
-          </div>
+          <ObjectStorageTab teamId={teamId || ''} />
         </TabPane>
+        
         <TabPane
           tab={
             <span>
-              <AreaChartOutlined />
+              <SettingOutlined />
               Usage Analytics
             </span>
           }
