@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Form, Input, Select, Radio, Tooltip, Divider, Tag, message, Row, Col, Table, Space } from 'antd';
-import { CloudOutlined, InfoCircleOutlined, TeamOutlined, FlagOutlined, SearchOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CloudOutlined, InfoCircleOutlined, TeamOutlined, FlagOutlined, SearchOutlined, FilterOutlined, ReloadOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const { Title, Text, Paragraph } = Typography;
@@ -303,6 +303,7 @@ const Storage: React.FC = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      render: (text: string) => <a>{text}</a>,
     },
     {
       title: 'Location',
@@ -339,36 +340,24 @@ const Storage: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => {
-        let className = '';
-        switch (status) {
-          case 'Ready':
-            className = 'status-tag-ready';
-            break;
-          case 'Pending':
-            className = 'status-tag-pending';
-            break;
-          case 'Error':
-            className = 'status-tag-error';
-            break;
-          default:
-            className = '';
-        }
-        
-        return (
-          <span className={className} style={{ padding: '2px 8px', borderRadius: '10px' }}>
-            {status === 'Ready' && <span style={{ marginRight: 4 }}>●</span>}
-            {status}
-          </span>
-        );
-      },
+      render: (status: string) => (
+        <Tag className={`status-tag-${status.toLowerCase()}`}>
+          {status}
+        </Tag>
+      ),
     },
     {
-      title: '',
-      key: 'action',
+      title: 'Actions',
+      key: 'actions',
       render: (_: any, record: Workspace) => (
         <Space size="middle">
-          <Button type="link" onClick={() => handleViewWorkspace(record.id)}>View</Button>
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
+            onClick={() => handleViewWorkspace(record.id)}
+          >
+            View
+          </Button>
           <Button type="link" danger onClick={() => handleDeleteWorkspace(record.id)}>Delete</Button>
         </Space>
       ),

@@ -16,6 +16,7 @@ import FirstTimeInstanceView from './pages/FirstTimeInstanceView';
 import FirstTimeStorageView from './pages/FirstTimeStorageView';
 import InstanceDetail from './pages/InstanceDetail';
 import Storage from './pages/Storage';
+import StorageDetail from './pages/StorageDetail';
 import { darkTheme } from './theme/darkTheme';
 import './App.less';
 import CreateWorkspace from './pages/CreateWorkspace';
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/empty-instance" element={<FirstTimeInstanceView />} />
                 <Route path="/empty-storage" element={<FirstTimeStorageView />} />
                 <Route path="/storage" element={<Storage />} />
+                <Route path="/storage/:id" element={<StorageDetail />} />
                 <Route path="/object-storage" element={<Storage />} />
                 <Route path="/storage/create" element={<CreateWorkspace />} />
               </Routes>
