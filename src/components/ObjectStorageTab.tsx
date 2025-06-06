@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Select, DatePicker, Input, Statistic, Table, Space, Button, Tag, Collapse, Typography, Divider, Modal } from 'antd';
+import { Card, Row, Col, Select, DatePicker, Input, Statistic, Table, Space, Button, Tag, Collapse, Typography, Divider, Modal, message } from 'antd';
 import { 
   CloudOutlined, 
   SearchOutlined, 
@@ -9,14 +9,16 @@ import {
   FolderOutlined,
   DatabaseOutlined,
   FileOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  EyeInvisibleOutlined,
+  CopyOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Panel } = Collapse;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 interface Bucket {
   id: string;
@@ -42,6 +44,12 @@ interface ObjectStorageTabProps {
   teamId: string;
 }
 
+interface S3Credentials {
+  hostname: string;
+  secretKey: string;
+  accessKey: string;
+}
+
 const ObjectStorageTab: React.FC<ObjectStorageTabProps> = ({ teamId }) => {
   // States for filters
   const [selectedMember, setSelectedMember] = useState<string>('all');
@@ -54,6 +62,9 @@ const ObjectStorageTab: React.FC<ObjectStorageTabProps> = ({ teamId }) => {
   const [members, setMembers] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedWorkspaces, setExpandedWorkspaces] = useState<string[]>([]);
+  const [credentialsVisible, setCredentialsVisible] = useState(false);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
+  const [secretKeyVisible, setSecretKeyVisible] = useState(false);
 
   // Mock statistics
   const statistics = {
@@ -234,6 +245,97 @@ const ObjectStorageTab: React.FC<ObjectStorageTabProps> = ({ teamId }) => {
     });
   };
 
+  // Handle copy to clipboard
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      message.success('Copied to clipboard');
+    });
+  };
+
+  // Mock S3 credentials
+  const getS3Credentials = (workspace: Workspace): S3Credentials => {
+    return {
+      hostname: 's3-us-east.nebulablock.com',
+      secretKey: '******',
+      accessKey: 'HTgBl70Sa...tNJ1jTDyX'
+    };
+  };
+
+  // Handle view credentials
+  const handleViewCredentials = (workspace: Workspace) => {
+    setSelectedWorkspace(workspace);
+    setCredentialsVisible(true);
+    setSecretKeyVisible(false);
+  };
+
+  // Credentials Modal
+  const renderCredentialsModal = () => {
+    if (!selectedWorkspace) return null;
+
+    const credentials = getS3Credentials(selectedWorkspace);
+
+    return (
+      <Modal
+        title={<Title level={4} style={{ margin: 0 }}>S3 Credentials</Title>}
+        open={credentialsVisible}
+        onCancel={() => setCredentialsVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <div style={{ backgroundColor: '#141414', padding: '24px', borderRadius: '8px' }}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <div>
+              <Space size="large" align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
+                <Text style={{ color: '#8c8c8c' }}>Hostname:</Text>
+                <Space>
+                  <Text>{credentials.hostname}</Text>
+                  <Button 
+                    type="text" 
+                    icon={<CopyOutlined />} 
+                    onClick={() => handleCopy(credentials.hostname)}
+                  />
+                </Space>
+              </Space>
+            </div>
+
+            <div>
+              <Space size="large" align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
+                <Text style={{ color: '#8c8c8c' }}>Secret Key:</Text>
+                <Space>
+                  <Text>{secretKeyVisible ? 'actual-secret-key-here' : credentials.secretKey}</Text>
+                  <Button 
+                    type="text" 
+                    icon={secretKeyVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                    onClick={() => setSecretKeyVisible(!secretKeyVisible)}
+                  />
+                  <Button 
+                    type="text" 
+                    icon={<CopyOutlined />} 
+                    onClick={() => handleCopy('actual-secret-key-here')}
+                  />
+                </Space>
+              </Space>
+            </div>
+
+            <div>
+              <Space size="large" align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
+                <Text style={{ color: '#8c8c8c' }}>Access Key:</Text>
+                <Space>
+                  <Text>{credentials.accessKey}</Text>
+                  <Button 
+                    type="text" 
+                    icon={<CopyOutlined />} 
+                    onClick={() => handleCopy(credentials.accessKey)}
+                  />
+                </Space>
+              </Space>
+            </div>
+          </Space>
+        </div>
+      </Modal>
+    );
+  };
+
   // Workspace table columns
   const columns = [
     {
@@ -305,7 +407,7 @@ const ObjectStorageTab: React.FC<ObjectStorageTabProps> = ({ teamId }) => {
           <Button 
             type="text" 
             icon={<EyeOutlined />}
-            onClick={() => console.log('View workspace:', record.id)}
+            onClick={() => handleViewCredentials(record)}
           >
             View
           </Button>
@@ -539,6 +641,7 @@ const ObjectStorageTab: React.FC<ObjectStorageTabProps> = ({ teamId }) => {
           loading={loading}
         />
       </Card>
+      {renderCredentialsModal()}
     </div>
   );
 };
