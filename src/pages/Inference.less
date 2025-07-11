@@ -1,0 +1,141 @@
+.inference-container {
+  padding: 0 24px 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+
+  .section {
+    margin-bottom: 28px;
+    
+    .section-title {
+      color: #ffffff;
+      margin-bottom: 14px;
+      font-weight: 500;
+      font-size: 20px; // 减小标题字体大小
+    }
+    
+    .models-row {
+      width: 100%;
+    }
+  }
+  
+  .model-card {
+    background-color: #141414 !important;
+    border-radius: 8px !important; // 减小圆角
+    border: 1px solid #303030;
+    height: 100%;
+    transition: all 0.3s;
+    overflow: hidden;
+    
+    &:hover {
+      transform: translateY(-3px); // 减小悬浮效果
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      border-color: #1890ff;
+    }
+    
+    .ant-card-body {
+      padding: 0;
+      height: 100%;
+    }
+    
+    .model-card-content {
+      display: flex;
+      padding: 16px; // 减小内边距
+      height: 100%;
+      flex-direction: column; // 调整为垂直布局
+      min-height: 220px; // 设置最小高度确保卡片更长
+    }
+    
+    .model-logo {
+      width: 48px; // 减小logo尺寸
+      height: 48px;
+      min-width: 48px;
+      margin-right: 0; // 移除右边距
+      margin-bottom: 14px; // 添加底部边距
+      background-color: #1f1f1f;
+      border-radius: 6px; // 减小圆角
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      
+      img {
+        max-width: 32px; // 减小图标大小
+        max-height: 32px;
+      }
+    }
+    
+    .model-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px; // 增加间距
+      width: 100%; // 确保宽度占满
+    }
+    
+    .model-name {
+      margin: 0;
+      color: #ffffff;
+      font-size: 16px; // 减小标题字体大小
+      font-weight: 500; // 调整字重
+      padding-right: 8px; // 为价格标签留出空间
+    }
+    
+    .model-price {
+      background-color: rgba(24, 144, 255, 0.1);
+      color: #1890ff;
+      padding: 2px 6px; // 减小内边距
+      border-radius: 4px;
+      font-size: 13px; // 减小字体大小
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0; // 防止价格标签被压缩
+    }
+    
+    .model-description {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 13px; // 减小描述文本大小
+      line-height: 1.5; // 增加行高使文本更易读
+      display: -webkit-box;
+      -webkit-line-clamp: 5; // 增加显示行数
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1; // 填充剩余空间
+    }
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .inference-container {
+    .model-card-content {
+      padding: 12px; // 进一步减小手机端内边距
+      min-height: 180px; // 调整手机端最小高度
+    }
+    
+    .model-logo {
+      width: 40px; // 减小手机端logo尺寸
+      height: 40px;
+      min-width: 40px;
+      
+      img {
+        max-width: 26px;
+        max-height: 26px;
+      }
+    }
+    
+    .model-name {
+      font-size: 15px;
+    }
+    
+    .model-price {
+      font-size: 12px;
+      padding: 2px 4px;
+    }
+    
+    .model-description {
+      font-size: 12px;
+      -webkit-line-clamp: 3; // 手机端减少行数
+    }
+  }
+} 

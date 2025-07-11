@@ -13,11 +13,6 @@ interface Team {
   role: 'owner' | 'admin' | 'member';
 }
 
-interface Creator {
-  id: string;
-  name: string;
-}
-
 interface Workspace {
   id: string;
   name: string;
@@ -139,14 +134,12 @@ const Storage: React.FC = () => {
   const location = useLocation();
   const [form] = Form.useForm();
   const [teams, setTeams] = useState<Team[]>([]);
-  const [creators, setCreators] = useState<Creator[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   
   // 筛选条件状态
   const [nameFilter, setNameFilter] = useState<string>('');
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
-  const [creatorFilter, setCreatorFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   // Add styles to the page
@@ -162,7 +155,7 @@ const Storage: React.FC = () => {
     };
   }, []);
 
-  // Load teams, creators and workspaces
+  // Load teams and workspaces
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -173,12 +166,6 @@ const Storage: React.FC = () => {
           { id: '1', name: 'ML Development', description: 'Machine Learning Development Team', role: 'owner' },
           { id: '2', name: 'Research Team', description: 'AI Research Group', role: 'admin' },
           { id: '3', name: 'Production', description: 'Production Environment', role: 'member' },
-        ];
-        
-        const mockCreators: Creator[] = [
-          { id: '1', name: 'Leo Zhang' },
-          { id: '2', name: 'Alex Chen' },
-          { id: '3', name: 'Sarah Johnson' },
         ];
         
         const mockWorkspaces: Workspace[] = [
@@ -233,7 +220,6 @@ const Storage: React.FC = () => {
         ];
         
         setTeams(mockTeams);
-        setCreators(mockCreators);
         setWorkspaces(mockWorkspaces);
       } catch (error) {
         console.error('Error loading data:', error);
@@ -248,36 +234,18 @@ const Storage: React.FC = () => {
 
   // 处理筛选后的数据
   const getFilteredWorkspaces = () => {
-    return workspaces.filter(workspace => {
-      // 按名称筛选
-      if (nameFilter && !workspace.name.toLowerCase().includes(nameFilter.toLowerCase())) {
-        return false;
-      }
-      
-      // 按团队筛选
-      if (teamFilter && workspace.team !== teamFilter) {
-        return false;
-      }
-      
-      // 按创建者筛选
-      if (creatorFilter && workspace.creator !== creatorFilter) {
-        return false;
-      }
-      
-      // 按状态筛选
-      if (statusFilter && workspace.status !== statusFilter) {
-        return false;
-      }
-      
-      return true;
+    return workspaces.filter(ws => {
+      const nameMatch = nameFilter ? ws.name.toLowerCase().includes(nameFilter.toLowerCase()) : true;
+      const teamMatch = teamFilter ? ws.team === teamFilter : true;
+      const statusMatch = statusFilter ? ws.status === statusFilter : true;
+      return nameMatch && teamMatch && statusMatch;
     });
   };
 
-  // 重置所有筛选条件
+  // 重置筛选条件
   const resetFilters = () => {
     setNameFilter('');
     setTeamFilter(null);
-    setCreatorFilter(null);
     setStatusFilter(null);
   };
 
@@ -300,12 +268,22 @@ const Storage: React.FC = () => {
   // 表格列定义
   const columns = [
     {
-      title: 'Name',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <CloudOutlined style={{ marginRight: '8px' }} />
+          Workspace Name
+        </Text>
+      ),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Location',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <FlagOutlined style={{ marginRight: '8px' }} />
+          Location
+        </Text>
+      ),
       dataIndex: 'location',
       key: 'location',
       render: (location: string) => (
@@ -316,56 +294,40 @@ const Storage: React.FC = () => {
       ),
     },
     {
-      title: 'Team',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <TeamOutlined style={{ marginRight: '8px' }} />
+          Team
+        </Text>
+      ),
       dataIndex: 'teamName',
       key: 'team',
     },
     {
-      title: 'Creator',
-      dataIndex: 'creatorName',
-      key: 'creator',
-    },
-    {
-      title: 'Charges',
-      dataIndex: 'charges',
-      key: 'charges',
-    },
-    {
-      title: 'Tier',
-      dataIndex: 'tier',
-      key: 'tier',
-    },
-    {
-      title: 'Status',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff' }}>
+          <InfoCircleOutlined style={{ marginRight: '8px' }} />
+          Status
+        </Text>
+      ),
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
-        let className = '';
-        switch (status) {
-          case 'Ready':
-            className = 'status-tag-ready';
-            break;
-          case 'Pending':
-            className = 'status-tag-pending';
-            break;
-          case 'Error':
-            className = 'status-tag-error';
-            break;
-          default:
-            className = '';
-        }
-        
-        return (
-          <span className={className} style={{ padding: '2px 8px', borderRadius: '10px' }}>
-            {status === 'Ready' && <span style={{ marginRight: 4 }}>●</span>}
-            {status}
-          </span>
-        );
-      },
+        let tagClass = '';
+        if (status === 'Ready') tagClass = 'status-tag-ready';
+        else if (status === 'Pending') tagClass = 'status-tag-pending';
+        else if (status === 'Error') tagClass = 'status-tag-error';
+        return <Tag className={tagClass}>{status}</Tag>;
+      }
     },
     {
-      title: '',
+      title: () => (
+        <Text strong style={{ fontSize: '14px', color: '#ffffff', display: 'flex', justifyContent: 'flex-end' }}>
+          Actions
+        </Text>
+      ),
       key: 'action',
+      align: 'right' as const,
       render: (_: any, record: Workspace) => (
         <Space size="middle">
           <Button type="link" onClick={() => handleViewWorkspace(record.id)}>View</Button>
@@ -377,18 +339,16 @@ const Storage: React.FC = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <Title level={2}>Object Storage</Title>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <Button type="link">Pricing</Button>
-          <Button type="link">Docs</Button>
-          <Button type="link">Referral</Button>
-          <div style={{ padding: '0 16px', display: 'flex', alignItems: 'center' }}>
-            <Text strong>$22.60</Text>
-          </div>
-          <Button type="primary">Deposit</Button>
-          <Button>leo zhang <span style={{ marginLeft: 8 }}>▼</span></Button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 /* Increased margin */ }}>
+        <div>
+          <Title level={3} style={{ marginBottom: 4 }}>Object Storage Workspaces</Title>
+          <Paragraph type="secondary" style={{ margin: 0, color: 'rgba(255, 255, 255, 0.75)' /* Lighter color for better readability */ }}>
+            Manage and organize your object storage resources by creating workspaces. Each workspace acts as a container for your storage buckets, allowing for better project isolation and resource management.
+          </Paragraph>
         </div>
+        <Button type="primary" icon={<CloudOutlined />} onClick={handleCreateWorkspace} size="large">
+          Create Workspace
+        </Button>
       </div>
 
       {/* 筛选区域 */}
@@ -396,11 +356,11 @@ const Storage: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Text style={{ width: 60 }}>Name:</Text>
           <Input 
-            placeholder="All" 
-            value={nameFilter || "All"}
-            onChange={(e) => setNameFilter(e.target.value === "All" ? "" : e.target.value)}
+            placeholder="Search by Workspace Name" 
+            prefix={<SearchOutlined />} 
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
             style={{ width: 200 }}
-            prefix={<SearchOutlined />}
             allowClear
           />
         </div>
@@ -418,22 +378,6 @@ const Storage: React.FC = () => {
             <Option value="personal">Personal</Option>
             {teams.map(team => (
               <Option key={team.id} value={team.id}>{team.name}</Option>
-            ))}
-          </Select>
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Text style={{ width: 60 }}>Creator:</Text>
-          <Select
-            placeholder="All"
-            style={{ width: 150 }}
-            value={creatorFilter || "All"}
-            onChange={(value) => setCreatorFilter(value === "All" ? null : value)}
-            allowClear
-          >
-            <Option value="All">All</Option>
-            {creators.map(creator => (
-              <Option key={creator.id} value={creator.id}>{creator.name}</Option>
             ))}
           </Select>
         </div>
@@ -462,8 +406,6 @@ const Storage: React.FC = () => {
         </Button>
         
         <div style={{ flex: 1 }}></div>
-        
-        <Button type="primary" onClick={handleCreateWorkspace}>Create Workspace</Button>
       </div>
 
       {/* Workspace列表 */}

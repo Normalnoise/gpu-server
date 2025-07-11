@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Layout, Menu } from 'antd';
-import { HomeOutlined, CloudServerOutlined, CloudOutlined, CodeOutlined, KeyOutlined, ApiOutlined, WalletOutlined, UserOutlined, ContactsOutlined, ShareAltOutlined, TeamOutlined } from '@ant-design/icons';
+import { HomeOutlined, CloudServerOutlined, CloudOutlined, CodeOutlined, KeyOutlined, ApiOutlined, WalletOutlined, UserOutlined, ContactsOutlined, ShareAltOutlined, TeamOutlined, RobotOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const { Sider } = Layout;
@@ -38,6 +38,7 @@ const Sidebar = () => {
           <Menu.Item key="/teams/empty" icon={<HomeOutlined />}>Home</Menu.Item>
           <Menu.Item key="/instances" icon={<CloudServerOutlined />}>Instances</Menu.Item>
           <Menu.Item key="/object-storage" icon={<CloudOutlined />}>Object Storage</Menu.Item>
+          <Menu.Item key="/inference" icon={<RobotOutlined />}>Inference</Menu.Item>
           <Menu.Item key="/serverless-models" icon={<CodeOutlined />}>Serverless Models</Menu.Item>
           <Menu.Item key="/ssh-public-key" icon={<KeyOutlined />}>SSH Public Key</Menu.Item>
           <Menu.Item key="/api-keys" icon={<ApiOutlined />}>API Keys</Menu.Item>

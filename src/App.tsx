@@ -8,6 +8,8 @@ import TeamOverview from './pages/TeamOverview';
 import ApiKeys from './pages/ApiKeys';
 import EmptyTeam from './pages/EmptyTeam';
 import ServerlessModels from './pages/ServerlessModels';
+import Inference from './pages/Inference';
+import ModelDetail from './pages/ModelDetail';
 import InviteAccept from './pages/InviteAccept';
 import Billing from './pages/Billing';
 import InviteMember from './pages/InviteMember';
@@ -19,6 +21,7 @@ import Storage from './pages/Storage';
 import { darkTheme } from './theme/darkTheme';
 import './App.less';
 import CreateWorkspace from './pages/CreateWorkspace';
+import WorkspaceDetail from './pages/WorkspaceDetail';
 
 const { Content } = Layout;
 
@@ -29,7 +32,7 @@ function App() {
         <Layout style={{ minHeight: '100vh', background: '#141414' }}>
           <Sidebar />
           <Layout style={{ background: '#141414' }}>
-            <Content style={{ margin: '24px 16px', padding: 24, minHeight: 280, background: '#1f1f1f' }}>
+            <Content style={{ margin: '24px 16px', padding: 24, minHeight: 'calc(100vh - 48px)', background: '#1f1f1f' }}>
               <Routes>
                 <Route path="/" element={<Navigate to="/teams/empty" replace />} />
                 <Route path="/teams/empty" element={<EmptyTeam />} />
@@ -40,6 +43,8 @@ function App() {
                 <Route path="/teams/:teamId/invite" element={<InviteMember />} />
                 <Route path="/api-keys" element={<ApiKeys />} />
                 <Route path="/serverless-models" element={<ServerlessModels />} />
+                <Route path="/inference" element={<Inference />} />
+                <Route path="/model/:modelId" element={<ModelDetail />} />
                 <Route path="/billing" element={<Billing />} />
                 <Route path="/invite/:inviteToken" element={<InviteAccept />} />
                 <Route path="/instances" element={<Instances />} />
@@ -47,8 +52,9 @@ function App() {
                 <Route path="/empty-instance" element={<FirstTimeInstanceView />} />
                 <Route path="/empty-storage" element={<FirstTimeStorageView />} />
                 <Route path="/storage" element={<Storage />} />
-                <Route path="/object-storage" element={<Storage />} />
                 <Route path="/storage/create" element={<CreateWorkspace />} />
+                <Route path="/storage/:id" element={<WorkspaceDetail />} />
+                <Route path="/object-storage" element={<Storage />} />
               </Routes>
             </Content>
           </Layout>
